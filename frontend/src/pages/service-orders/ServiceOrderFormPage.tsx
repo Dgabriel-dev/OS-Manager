@@ -85,6 +85,21 @@ export function ServiceOrderFormPage() {
   const mutation = useMutation({
     mutationFn: (data: ServiceOrderFormData) => {
       const payload: any = { ...data };
+      if (!payload.technician_id || isNaN(payload.technician_id)) {
+        payload.technician_id = null;
+      }
+      if (!payload.estimated_value || isNaN(payload.estimated_value)) {
+        payload.estimated_value = null;
+      }
+      if (!payload.estimated_delivery_date) {
+        payload.estimated_delivery_date = null;
+      }
+      if (!payload.notes) {
+        payload.notes = null;
+      }
+      if (!payload.internal_notes) {
+        payload.internal_notes = null;
+      }
       return isEditing ? serviceOrdersApi.update(Number(id), payload) : serviceOrdersApi.create(payload);
     },
     onSuccess: () => {

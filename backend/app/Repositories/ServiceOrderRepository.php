@@ -54,7 +54,9 @@ class ServiceOrderRepository implements ServiceOrderRepositoryInterface
     public function generateOrderNumber(): string
     {
         $year = Carbon::now()->year;
-        $lastOrder = $this->model->whereYear('created_at', $year)->max('order_number');
+        $lastOrder = $this->model->withTrashed()
+            ->whereYear('created_at', $year)
+            ->max('order_number');
 
         if ($lastOrder) {
             $lastNumber = (int) substr($lastOrder, -6);
