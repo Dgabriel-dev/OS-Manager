@@ -57,8 +57,11 @@ export function ClientFormPage() {
       toast('success', isEditing ? 'Cliente atualizado' : 'Cliente criado');
       navigate('/clients');
     },
-    onError: () => {
-      toast('error', 'Erro ao salvar cliente');
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(', ')
+        : 'Erro ao salvar cliente';
+      toast('error', message);
     },
   });
 

@@ -11,8 +11,8 @@ export interface UserFilters {
 
 export const usersApi = {
   list: async (filters?: UserFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<User>>>('/users', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<User>>('/users', { params: filters });
+    return response.data;
   },
 
   getById: async (id: number) => {

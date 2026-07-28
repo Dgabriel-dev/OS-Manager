@@ -11,8 +11,8 @@ export interface EquipmentFilters {
 
 export const equipmentApi = {
   list: async (filters?: EquipmentFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Equipment>>>('/equipment', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<Equipment>>('/equipment', { params: filters });
+    return response.data;
   },
 
   getById: async (id: number) => {

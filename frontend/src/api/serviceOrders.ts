@@ -13,8 +13,8 @@ export interface ServiceOrderFilters {
 
 export const serviceOrdersApi = {
   list: async (filters?: ServiceOrderFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<ServiceOrder>>>('/service-orders', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<ServiceOrder>>('/service-orders', { params: filters });
+    return response.data;
   },
 
   getById: async (id: number) => {

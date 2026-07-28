@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import { stockApi } from '@/api/stock';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { formatCurrency } from '@/utils/formatters';
 
 export function StockItemListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { page, perPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -20,6 +23,23 @@ export function StockItemListPage() {
     queryKey: ['stock-items', page, perPage, debouncedSearch],
     queryFn: () => stockApi.listItems({ page, per_page: perPage, search: debouncedSearch }),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => stockApi.deleteItem(id),
+    onSuccess: () => {
+      toast('success', 'Item removido com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['stock-items'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao remover item');
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('Deseja realmente excluir este item do estoque?')) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const columns = [
     {
@@ -96,7 +116,7 @@ export function StockItemListPage() {
             <Button variant="ghost" size="icon" onClick={() => navigate(`/stock/${item.id}/edit`)}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>

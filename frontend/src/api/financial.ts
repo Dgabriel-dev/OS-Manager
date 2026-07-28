@@ -20,8 +20,8 @@ export interface FinancialSummary {
 
 export const financialApi = {
   listTransactions: async (filters?: TransactionFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Transaction>>>('/financial/transactions', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<Transaction>>('/financial/transactions', { params: filters });
+    return response.data;
   },
 
   getTransactionById: async (id: number) => {

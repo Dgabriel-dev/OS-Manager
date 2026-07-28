@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { usersApi } from '@/api/users';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
+import { useToast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 
 export function UserListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { page, perPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -20,6 +23,23 @@ export function UserListPage() {
     queryKey: ['users', page, perPage, debouncedSearch],
     queryFn: () => usersApi.list({ page, per_page: perPage, search: debouncedSearch }),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => usersApi.delete(id),
+    onSuccess: () => {
+      toast('success', 'Usuário removido com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao remover usuário');
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('Deseja realmente excluir este usuário?')) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const columns = [
     {
@@ -86,7 +106,7 @@ export function UserListPage() {
             <Button variant="ghost" size="icon" onClick={() => navigate(`/users/${item.id}/edit`)}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>

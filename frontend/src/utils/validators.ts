@@ -9,15 +9,15 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 export const clientSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
-  cpf_cnpj: z.string().min(11, 'CPF/CNPJ inválido').max(14, 'CPF/CNPJ inválido'),
-  phone: z.string().min(10, 'Telefone inválido').max(11, 'Telefone inválido'),
-  whatsapp: z.string().optional().nullable(),
-  email: z.string().email('E-mail inválido').optional().nullable(),
-  cep: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  city: z.string().optional().nullable(),
-  state: z.string().optional().nullable(),
-  observations: z.string().optional().nullable(),
+  cpf_cnpj: z.string().min(11, 'CPF/CNPJ inválido').max(18, 'CPF/CNPJ inválido'),
+  phone: z.string().min(10, 'Telefone inválido').max(15, 'Telefone inválido'),
+  whatsapp: z.string().optional().nullable().transform(v => v === '' ? null : v),
+  email: z.string().optional().nullable().transform(v => v === '' ? null : v).refine(v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'E-mail inválido'),
+  cep: z.string().optional().nullable().transform(v => v === '' ? null : v),
+  address: z.string().optional().nullable().transform(v => v === '' ? null : v),
+  city: z.string().optional().nullable().transform(v => v === '' ? null : v),
+  state: z.string().optional().nullable().transform(v => v === '' ? null : v),
+  observations: z.string().optional().nullable().transform(v => v === '' ? null : v),
 });
 
 export type ClientFormData = z.infer<typeof clientSchema>;
@@ -111,7 +111,7 @@ export type TransactionFormData = z.infer<typeof transactionSchema>;
 export const userSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('E-mail inválido'),
-  phone: z.string().optional().nullable(),
+  phone: z.string().optional().nullable().transform(v => v === '' ? null : v),
   role_id: z.number().min(1, 'Perfil é obrigatório'),
   is_active: z.boolean().optional(),
   password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
@@ -131,7 +131,7 @@ export type UserFormData = z.infer<typeof userSchema>;
 export const profileSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('E-mail inválido'),
-  phone: z.string().optional().nullable(),
+  phone: z.string().optional().nullable().transform(v => v === '' ? null : v),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;

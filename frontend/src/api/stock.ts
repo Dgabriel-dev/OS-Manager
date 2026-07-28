@@ -18,8 +18,8 @@ export interface StockMovementFilters {
 
 export const stockApi = {
   listItems: async (filters?: StockItemFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<StockItem>>>('/stock/items', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<StockItem>>('/stock/items', { params: filters });
+    return response.data;
   },
 
   getItemById: async (id: number) => {
@@ -48,7 +48,7 @@ export const stockApi = {
   },
 
   listMovements: async (filters?: StockMovementFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<StockMovement>>>('/stock/movements', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<StockMovement>>('/stock/movements', { params: filters });
+    return response.data;
   },
 };

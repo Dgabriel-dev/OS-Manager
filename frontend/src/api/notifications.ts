@@ -3,8 +3,8 @@ import type { ApiResponse, Notification, PaginatedResponse } from '@/types';
 
 export const notificationsApi = {
   list: async (page?: number) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Notification>>>('/notifications', { params: { page } });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<Notification>>('/notifications', { params: { page } });
+    return response.data;
   },
 
   markAsRead: async (id: number) => {

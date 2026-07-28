@@ -9,8 +9,8 @@ export interface ClientFilters {
 
 export const clientsApi = {
   list: async (filters?: ClientFilters) => {
-    const response = await api.get<ApiResponse<PaginatedResponse<Client>>>('/clients', { params: filters });
-    return response.data.data;
+    const response = await api.get<PaginatedResponse<Client>>('/clients', { params: filters });
+    return response.data;
   },
 
   getById: async (id: number) => {

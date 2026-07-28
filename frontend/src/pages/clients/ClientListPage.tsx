@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { clientsApi } from '@/api/clients';
 import { DataTable } from '@/components/ui/data-table';
@@ -9,9 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { formatCPF_CNPJ, formatPhone } from '@/utils/formatters';
+import { useToast } from '@/components/ui/toast';
 
 export function ClientListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { page, perPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -20,6 +23,23 @@ export function ClientListPage() {
     queryKey: ['clients', page, perPage, debouncedSearch],
     queryFn: () => clientsApi.list({ page, per_page: perPage, search: debouncedSearch }),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => clientsApi.delete(id),
+    onSuccess: () => {
+      toast('success', 'Cliente removido com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao remover cliente');
+    },
+  });
+
+  const handleDelete = (id: number, name: string) => {
+    if (window.confirm(`Deseja realmente excluir o cliente "${name}"?`)) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const columns = [
     {
@@ -82,7 +102,7 @@ export function ClientListPage() {
             <Button variant="ghost" size="icon" onClick={() => navigate(`/clients/${item.id}/edit`)}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => {/* delete */}}>
+            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id, item.name)}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
