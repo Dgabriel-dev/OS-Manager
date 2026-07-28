@@ -142,19 +142,14 @@ docker compose exec php php artisan migrate --seed --force
 docker compose exec php php artisan storage:link
 ```
 
-### Passo 3: Aplique correcoes do backend
-```bash
-sudo ./fix-backend.sh
-```
-
-### Passo 4: Instalar e iniciar o frontend
+### Passo 3: Instalar e iniciar o frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Passo 5: Acesse o sistema
+### Passo 4: Acesse o sistema
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:8080/api
 - **MailHog:** http://localhost:8025
