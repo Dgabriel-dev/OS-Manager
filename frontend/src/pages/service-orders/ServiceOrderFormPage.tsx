@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { serviceOrdersApi } from '@/api/serviceOrders';
 import { clientsApi } from '@/api/clients';
@@ -20,6 +20,7 @@ export function ServiceOrderFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: order, isLoading: loadingOrder } = useQuery({
@@ -88,6 +89,7 @@ export function ServiceOrderFormPage() {
     },
     onSuccess: () => {
       toast('success', isEditing ? 'OS atualizada' : 'OS criada');
+      queryClient.invalidateQueries({ queryKey: ['service-orders'] });
       navigate('/service-orders');
     },
     onError: () => {

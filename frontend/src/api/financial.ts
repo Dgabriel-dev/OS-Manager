@@ -14,8 +14,11 @@ export interface TransactionFilters {
 
 export interface FinancialSummary {
   total_income: number;
-  total_expenses: number;
+  total_expense: number;
   balance: number;
+  monthly_income: number;
+  monthly_expense: number;
+  monthly_balance: number;
 }
 
 export const financialApi = {
@@ -46,6 +49,11 @@ export const financialApi = {
 
   getDashboard: async () => {
     const response = await api.get<ApiResponse<FinancialSummary>>('/financial/dashboard');
+    return response.data.data;
+  },
+
+  listCategories: async () => {
+    const response = await api.get<ApiResponse<FinancialCategory[]>>('/financial/categories');
     return response.data.data;
   },
 };

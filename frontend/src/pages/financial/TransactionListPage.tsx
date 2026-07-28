@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Pencil, Eye } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { financialApi } from '@/api/financial';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { formatDate, formatCurrency } from '@/utils/formatters';
@@ -23,6 +24,8 @@ const statusLabels: Record<string, { label: string; variant: 'default' | 'succes
 
 export function TransactionListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { page, perPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -37,6 +40,23 @@ export function TransactionListPage() {
       type: typeFilter || undefined,
     }),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => financialApi.deleteTransaction(id),
+    onSuccess: () => {
+      toast('success', 'Transação removida com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao remover transação');
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('Deseja realmente excluir esta transação?')) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const columns = [
     {
@@ -123,9 +143,14 @@ export function TransactionListPage() {
         emptyMessage="Nenhuma transação encontrada"
         onRowClick={(item) => navigate(`/financial/${item.id}`)}
         actions={(item) => (
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/financial/${item.id}/edit`)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate(`/financial/${item.id}/edit`)}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
         )}
       />
     </div>

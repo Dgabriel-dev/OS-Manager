@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { usersApi } from '@/api/users';
 import { userSchema, type UserFormData } from '@/utils/validators';
@@ -17,6 +17,7 @@ export function UserFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: user, isLoading: loadingUser } = useQuery({
@@ -58,6 +59,7 @@ export function UserFormPage() {
       isEditing ? usersApi.update(Number(id), data) : usersApi.create(data),
     onSuccess: () => {
       toast('success', isEditing ? 'Usuário atualizado' : 'Usuário criado');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       navigate('/users');
     },
     onError: () => {

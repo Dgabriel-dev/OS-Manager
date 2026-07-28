@@ -38,7 +38,7 @@ export const serviceOrdersApi = {
   },
 
   updateStatus: async (id: number, status: string) => {
-    const response = await api.patch<ApiResponse<ServiceOrder>>(`/service-orders/${id}/status`, { status });
+    const response = await api.put<ApiResponse<ServiceOrder>>(`/service-orders/${id}/status`, { status });
     return response.data.data;
   },
 

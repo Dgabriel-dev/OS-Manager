@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { financialApi } from '@/api/financial';
 import { transactionSchema, type TransactionFormData } from '@/utils/validators';
@@ -16,6 +16,7 @@ export function TransactionFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: transaction, isLoading: loadingTransaction } = useQuery({
@@ -58,6 +59,8 @@ export function TransactionFormPage() {
       isEditing ? financialApi.updateTransaction(Number(id), data) : financialApi.createTransaction(data),
     onSuccess: () => {
       toast('success', isEditing ? 'Transação atualizada' : 'Transação criada');
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-summary'] });
       navigate('/financial/transactions');
     },
     onError: () => {

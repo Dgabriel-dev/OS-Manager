@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { stockApi } from '@/api/stock';
 import { stockItemSchema, type StockItemFormData } from '@/utils/validators';
@@ -16,6 +16,7 @@ export function StockItemFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: item, isLoading: loadingItem } = useQuery({
@@ -63,6 +64,7 @@ export function StockItemFormPage() {
       isEditing ? stockApi.updateItem(Number(id), data) : stockApi.createItem(data),
     onSuccess: () => {
       toast('success', isEditing ? 'Item atualizado' : 'Item criado');
+      queryClient.invalidateQueries({ queryKey: ['stock-items'] });
       navigate('/stock');
     },
     onError: () => {

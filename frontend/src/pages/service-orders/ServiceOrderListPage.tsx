@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Pencil, Eye } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Eye, Trash2 } from 'lucide-react';
 import { serviceOrdersApi } from '@/api/serviceOrders';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { formatDate, formatCurrency } from '@/utils/formatters';
@@ -28,6 +29,8 @@ const priorityLabels: Record<string, { label: string; variant: 'default' | 'succ
 
 export function ServiceOrderListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { page, perPage, setPage, setPerPage } = usePagination();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -42,6 +45,23 @@ export function ServiceOrderListPage() {
       status: statusFilter || undefined,
     }),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => serviceOrdersApi.delete(id),
+    onSuccess: () => {
+      toast('success', 'OS removida com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['service-orders'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao remover OS');
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('Deseja realmente excluir esta OS?')) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const columns = [
     {
@@ -138,9 +158,14 @@ export function ServiceOrderListPage() {
         emptyMessage="Nenhuma OS encontrada"
         onRowClick={(item) => navigate(`/service-orders/${item.id}`)}
         actions={(item) => (
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/service-orders/${item.id}`)}>
-            <Eye className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate(`/service-orders/${item.id}`)}>
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
         )}
       />
     </div>
