@@ -12,9 +12,11 @@ class ServiceOrderItemResource extends JsonResource
         return [
             'id' => $this->id,
             'stock_item' => new StockItemResource($this->whenLoaded('stockItem')),
+            'description' => $this->description,
             'quantity' => $this->quantity,
             'unit_price' => $this->unit_price,
             'total_price' => $this->total_price,
+            'type' => $this->type,
         ];
     }
 }

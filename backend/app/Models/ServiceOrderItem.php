@@ -14,9 +14,11 @@ class ServiceOrderItem extends Model
     protected $fillable = [
         'service_order_id',
         'stock_item_id',
+        'description',
         'quantity',
         'unit_price',
         'total_price',
+        'type',
     ];
 
     protected $casts = [

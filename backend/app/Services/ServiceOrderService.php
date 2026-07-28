@@ -42,9 +42,26 @@ class ServiceOrderService
     public function create(array $data, ?int $userId = null): ServiceOrder
     {
         $data['order_number'] = $this->repository->generateOrderNumber();
-        $data['status'] = $data['status'] ?? 'pending';
+        $data['status'] = $data['status'] ?? 'open';
+        $data['entry_date'] = $data['entry_date'] ?? now()->toDateString();
+        $data['warranty_days'] = $data['warranty_days'] ?? 30;
+
+        $items = $data['items'] ?? [];
+        unset($data['items']);
 
         $order = $this->repository->create($data);
+
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                $order->items()->create([
+                    'description' => $item['description'] ?? null,
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'total_price' => ($item['quantity'] ?? 1) * ($item['unit_price'] ?? 0),
+                    'type' => $item['type'] ?? 'service',
+                ]);
+            }
+        }
 
         $this->historyRepository->create([
             'service_order_id' => $order->id,
@@ -60,7 +77,24 @@ class ServiceOrderService
     public function update(int $id, array $data, ?int $userId = null): ServiceOrder
     {
         $oldOrder = $this->repository->findById($id);
+
+        $items = $data['items'] ?? null;
+        unset($data['items']);
+
         $order = $this->repository->update($id, $data);
+
+        if ($items !== null) {
+            $order->items()->delete();
+            foreach ($items as $item) {
+                $order->items()->create([
+                    'description' => $item['description'] ?? null,
+                    'quantity' => $item['quantity'] ?? 1,
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'total_price' => ($item['quantity'] ?? 1) * ($item['unit_price'] ?? 0),
+                    'type' => $item['type'] ?? 'service',
+                ]);
+            }
+        }
 
         $this->historyRepository->create([
             'service_order_id' => $order->id,

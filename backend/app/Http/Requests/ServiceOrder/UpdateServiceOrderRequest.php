@@ -25,6 +25,11 @@ class UpdateServiceOrderRequest extends FormRequest
             'estimated_delivery_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
             'internal_notes' => ['nullable', 'string'],
+            'items' => ['nullable', 'array'],
+            'items.*.description' => ['nullable', 'string'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
+            'items.*.unit_price' => ['required_with:items', 'numeric', 'min:0'],
+            'items.*.type' => ['nullable', 'string', 'in:part,service,other'],
         ];
     }
 

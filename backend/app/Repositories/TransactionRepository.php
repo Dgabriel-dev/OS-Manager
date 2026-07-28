@@ -74,7 +74,7 @@ class TransactionRepository implements TransactionRepositoryInterface
     {
         return $this->model->selectRaw("
             type,
-            DATE_FORMAT(payment_date, '%Y-%m') as month,
+            to_char(payment_date, 'YYYY-MM') as month,
             SUM(amount) as total
         ")
             ->whereYear('payment_date', $year)

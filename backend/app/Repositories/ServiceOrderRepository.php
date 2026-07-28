@@ -107,13 +107,7 @@ class ServiceOrderRepository implements ServiceOrderRepositoryInterface
 
     public function getMonthlyStats(): Collection
     {
-        $grammar = $this->model->getConnection()->getDriverName();
-        $dateFormat = match ($grammar) {
-            'sqlite' => "strftime('%%Y-%%m', created_at)",
-            default => "DATE_FORMAT(created_at, '%%Y-%%m')",
-        };
-
-        return $this->model->selectRaw("{$dateFormat} as month, count(*) as count")
+        return $this->model->selectRaw("to_char(created_at, 'YYYY-MM') as month, count(*) as count")
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
             ->groupBy('month')
             ->orderBy('month')

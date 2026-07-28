@@ -14,7 +14,7 @@ class UpdateStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'string', 'in:pending,in_progress,waiting_parts,completed,delivered,cancelled'],
+            'status' => ['required', 'string', 'in:open,in_progress,waiting_parts,completed,delivered,cancelled'],
             'notes' => ['nullable', 'string'],
             'used_parts' => ['nullable', 'array'],
             'used_parts.*.stock_item_id' => ['required_with:used_parts', 'exists:stock_items,id'],
