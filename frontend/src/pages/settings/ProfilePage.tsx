@@ -46,7 +46,7 @@ export function ProfilePage() {
   const profileMutation = useMutation({
     mutationFn: (data: ProfileFormData) => authApi.updateProfile(data),
     onSuccess: (data) => {
-      updateUser(data);
+      updateUser(data.user);
       toast('success', 'Perfil atualizado');
     },
     onError: () => {

@@ -32,4 +32,9 @@ export const clientsApi = {
     const response = await api.delete(`/clients/${id}`);
     return response.data;
   },
+
+  restore: async (id: number) => {
+    const response = await api.post(`/clients/${id}/restore`);
+    return response.data;
+  },
 };

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Users, Monitor, FileText, Package, DollarSign, AlertTriangle } from 'lucide-react';
+import { Users, Monitor, FileText, DollarSign, AlertTriangle } from 'lucide-react';
 import { dashboardApi } from '@/api/dashboard';
 import { StatCard } from '@/components/ui/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

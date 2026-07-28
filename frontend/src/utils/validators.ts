@@ -74,14 +74,13 @@ export const stockItemSchema = z.object({
   quantity: z.number().min(0, 'Quantidade inválida'),
   minimum_quantity: z.number().min(0, 'Quantidade inválida'),
   location: z.string().optional().nullable(),
-  is_active: z.boolean().optional(),
 });
 
 export type StockItemFormData = z.infer<typeof stockItemSchema>;
 
 export const stockMovementSchema = z.object({
   stock_item_id: z.number().min(1, 'Item é obrigatório'),
-  type: z.enum(['entry', 'exit', 'adjustment'], {
+  type: z.enum(['entry', 'exit'], {
     errorMap: () => ({ message: 'Tipo é obrigatório' }),
   }),
   quantity: z.number().min(1, 'Quantidade deve ser maior que 0'),

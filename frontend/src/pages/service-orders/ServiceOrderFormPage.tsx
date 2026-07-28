@@ -64,7 +64,7 @@ export function ServiceOrderFormPage() {
 
   const { data: equipmentData } = useQuery({
     queryKey: ['equipment-list', selectedClientId],
-    queryFn: () => equipmentApi.list({ client_id: selectedClientId, per_page: 1000 }),
+    queryFn: () => equipmentApi.byClient(selectedClientId, 1000),
     enabled: !!selectedClientId,
   });
 
@@ -92,8 +92,11 @@ export function ServiceOrderFormPage() {
       queryClient.invalidateQueries({ queryKey: ['service-orders'] });
       navigate('/service-orders');
     },
-    onError: () => {
-      toast('error', 'Erro ao salvar OS');
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(', ')
+        : 'Erro ao salvar OS';
+      toast('error', message);
     },
   });
 
