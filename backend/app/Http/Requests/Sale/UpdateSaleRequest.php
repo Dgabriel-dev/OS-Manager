@@ -23,6 +23,7 @@ class UpdateSaleRequest extends FormRequest
             'items.*.sale_category_id' => ['nullable', 'exists:sale_categories,id'],
             'items.*.quantity' => ['required_with:items', 'integer', 'min:1'],
             'items.*.unit_price' => ['required_with:items', 'numeric', 'min:0'],
+            'items.*.cost_price' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 

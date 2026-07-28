@@ -33,6 +33,8 @@ export interface MonthlyRevenue {
   income: number;
   transaction_income: number;
   sale_revenue: number;
+  sale_cost: number;
+  sale_profit: number;
   expense: number;
   balance: number;
   cumulative: number;

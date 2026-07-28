@@ -157,6 +157,7 @@ export const saleItemSchema = z.object({
   sale_category_id: z.number().optional().nullable(),
   quantity: z.number().min(1, 'Quantidade deve ser maior que 0'),
   unit_price: z.number().min(0, 'Preço inválido'),
+  cost_price: z.number().min(0, 'Custo inválido').optional(),
 });
 
 export const saleSchema = z.object({

@@ -153,12 +153,20 @@ class FinancialService
                 ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
                 ->sum('total_amount');
 
+            $saleCost = (float) $this->saleModel
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+                ->join('sale_items', 'sales.id', '=', 'sale_items.sale_id')
+                ->sum('sale_items.cost_price');
+
             $months[] = [
                 'month' => $monthKey,
                 'label' => $monthLabel,
                 'income' => $transactionIncome + $saleRevenue,
                 'transaction_income' => $transactionIncome,
                 'sale_revenue' => $saleRevenue,
+                'sale_cost' => $saleCost,
+                'sale_profit' => $saleRevenue - $saleCost,
                 'expense' => $transactionExpense,
                 'balance' => ($transactionIncome + $saleRevenue) - $transactionExpense,
             ];

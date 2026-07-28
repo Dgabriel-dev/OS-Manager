@@ -15,6 +15,7 @@ class SaleItemResource extends JsonResource
             'category' => new SaleCategoryResource($this->whenLoaded('category')),
             'quantity' => $this->quantity,
             'unit_price' => $this->unit_price,
+            'cost_price' => $this->cost_price,
             'total_price' => $this->total_price,
         ];
     }

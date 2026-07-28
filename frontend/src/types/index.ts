@@ -153,6 +153,8 @@ export interface Sale {
   client: Client | null;
   user: User | null;
   total_amount: number;
+  total_cost: number;
+  profit: number;
   payment_method: string | null;
   payment_status: 'pending' | 'paid' | 'cancelled';
   notes: string | null;
@@ -167,6 +169,7 @@ export interface SaleItem {
   category: SaleCategory | null;
   quantity: number;
   unit_price: number;
+  cost_price: number;
   total_price: number;
 }
 

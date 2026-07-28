@@ -9,11 +9,18 @@ class SaleResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $totalCost = 0;
+        foreach ($this->whenLoaded('items') as $item) {
+            $totalCost += ($item->cost_price ?? 0) * $item->quantity;
+        }
+
         return [
             'id' => $this->id,
             'client' => new ClientResource($this->whenLoaded('client')),
             'user' => new UserResource($this->whenLoaded('user')),
             'total_amount' => $this->total_amount,
+            'total_cost' => $totalCost,
+            'profit' => $this->total_amount - $totalCost,
             'payment_method' => $this->payment_method,
             'payment_status' => $this->payment_status,
             'notes' => $this->notes,

@@ -33,7 +33,7 @@ export function FinancialDashboardPage() {
     name: m.label,
     Receita: m.income,
     Despesa: m.expense,
-    Saldo: m.balance,
+    Lucro: m.sale_profit || 0,
   })) || [];
 
   return (
@@ -89,6 +89,39 @@ export function FinancialDashboardPage() {
         />
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Lucro Total (Vendas)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-blue-600">
+              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_profit || 0), 0) || 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Custo Total (Vendas)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">
+              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_cost || 0), 0) || 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Receita de Vendas (Pago)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-green-600">
+              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_revenue || 0), 0) || 0)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
@@ -105,6 +138,7 @@ export function FinancialDashboardPage() {
                   <Legend />
                   <Bar dataKey="Receita" fill="#22c55e" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Lucro" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

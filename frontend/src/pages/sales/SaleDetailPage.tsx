@@ -116,10 +116,23 @@ export function SaleDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Total</CardTitle>
+            <CardTitle className="text-base">Totais</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-600">{formatCurrency(sale.total_amount)}</p>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Receita Total:</span>
+              <span className="text-lg font-bold text-green-600">{formatCurrency(sale.total_amount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Custo Total:</span>
+              <span className="text-lg font-bold text-red-600">{formatCurrency(sale.total_cost)}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2">
+              <span className="text-sm font-medium">Lucro:</span>
+              <span className={`text-lg font-bold ${sale.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(sale.profit)}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -136,24 +149,37 @@ export function SaleDetailPage() {
                   <th className="h-10 px-4 text-left font-medium text-muted-foreground">Produto</th>
                   <th className="h-10 px-4 text-left font-medium text-muted-foreground">Categoria</th>
                   <th className="h-10 px-4 text-right font-medium text-muted-foreground">Qtd</th>
-                  <th className="h-10 px-4 text-right font-medium text-muted-foreground">Preço Unit.</th>
+                  <th className="h-10 px-4 text-right font-medium text-muted-foreground">Preço Venda</th>
+                  <th className="h-10 px-4 text-right font-medium text-muted-foreground">Custo</th>
+                  <th className="h-10 px-4 text-right font-medium text-muted-foreground">Lucro</th>
                   <th className="h-10 px-4 text-right font-medium text-muted-foreground">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {sale.items?.map((item) => (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="p-4 font-medium">{item.name}</td>
-                    <td className="p-4 text-muted-foreground">{item.category?.name || '-'}</td>
-                    <td className="p-4 text-right">{item.quantity}</td>
-                    <td className="p-4 text-right">{formatCurrency(item.unit_price)}</td>
-                    <td className="p-4 text-right font-medium">{formatCurrency(item.total_price)}</td>
-                  </tr>
-                ))}
+                {sale.items?.map((item) => {
+                  const itemProfit = (item.unit_price - (item.cost_price || 0)) * item.quantity;
+                  return (
+                    <tr key={item.id} className="border-b last:border-0">
+                      <td className="p-4 font-medium">{item.name}</td>
+                      <td className="p-4 text-muted-foreground">{item.category?.name || '-'}</td>
+                      <td className="p-4 text-right">{item.quantity}</td>
+                      <td className="p-4 text-right">{formatCurrency(item.unit_price)}</td>
+                      <td className="p-4 text-right text-red-600">{formatCurrency(item.cost_price || 0)}</td>
+                      <td className={`p-4 text-right font-medium ${itemProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(itemProfit)}
+                      </td>
+                      <td className="p-4 text-right font-medium">{formatCurrency(item.total_price)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="border-t">
                   <td colSpan={4} className="p-4 text-right font-bold">Total:</td>
+                  <td className="p-4 text-right font-bold text-red-600">{formatCurrency(sale.total_cost)}</td>
+                  <td className={`p-4 text-right font-bold ${sale.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(sale.profit)}
+                  </td>
                   <td className="p-4 text-right text-lg font-bold">{formatCurrency(sale.total_amount)}</td>
                 </tr>
               </tfoot>

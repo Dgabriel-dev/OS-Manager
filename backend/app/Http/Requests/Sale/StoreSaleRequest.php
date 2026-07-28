@@ -23,6 +23,7 @@ class StoreSaleRequest extends FormRequest
             'items.*.sale_category_id' => ['nullable', 'exists:sale_categories,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'items.*.cost_price' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 

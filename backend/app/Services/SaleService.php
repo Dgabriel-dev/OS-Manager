@@ -53,6 +53,7 @@ class SaleService
                     'sale_category_id' => $item['sale_category_id'] ?? null,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
+                    'cost_price' => $item['cost_price'] ?? 0,
                     'total_price' => $quantity * $unitPrice,
                 ]);
             }
@@ -88,6 +89,7 @@ class SaleService
                     'sale_category_id' => $item['sale_category_id'] ?? null,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
+                    'cost_price' => $item['cost_price'] ?? 0,
                     'total_price' => $quantity * $unitPrice,
                 ]);
             }

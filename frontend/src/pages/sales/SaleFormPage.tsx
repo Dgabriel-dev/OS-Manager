@@ -49,7 +49,7 @@ export function SaleFormPage() {
     resolver: zodResolver(saleSchema) as any,
     defaultValues: {
       payment_status: 'pending',
-      items: [{ name: '', quantity: 1, unit_price: 0, sale_category_id: null }],
+      items: [{ name: '', quantity: 1, unit_price: 0, cost_price: 0, sale_category_id: null }],
     },
   });
 
@@ -60,6 +60,7 @@ export function SaleFormPage() {
 
   const items = watch('items') || [];
   const totalAmount = items.reduce((sum, item) => sum + (item.quantity || 0) * (item.unit_price || 0), 0);
+  const totalCost = items.reduce((sum, item) => sum + (item.quantity || 0) * (item.cost_price || 0), 0);
 
   useEffect(() => {
     if (sale) {
@@ -73,6 +74,7 @@ export function SaleFormPage() {
           sale_category_id: item.category?.id || null,
           quantity: item.quantity,
           unit_price: item.unit_price,
+          cost_price: item.cost_price || 0,
         })));
       }
     }
@@ -194,7 +196,7 @@ export function SaleFormPage() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ name: '', quantity: 1, unit_price: 0, sale_category_id: null })}
+              onClick={() => append({ name: '', quantity: 1, unit_price: 0, cost_price: 0, sale_category_id: null })}
             >
               <Plus className="mr-2 h-4 w-4" />
               Adicionar Item
@@ -205,7 +207,7 @@ export function SaleFormPage() {
               <p className="text-sm text-destructive">{errors.items.message}</p>
             )}
             {fields.map((field, index) => (
-              <div key={field.id} className="grid gap-4 md:grid-cols-[2fr_1fr_1fr_1fr_auto] items-end">
+              <div key={field.id} className="grid gap-4 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-end">
                 <Input
                   label={index === 0 ? 'Nome do Item *' : undefined}
                   placeholder="Ex: Notebook, Mouse, Teclado..."
@@ -225,12 +227,20 @@ export function SaleFormPage() {
                   {...register(`items.${index}.quantity`, { valueAsNumber: true })}
                 />
                 <Input
-                  label={index === 0 ? 'Preço Unit. *' : undefined}
+                  label={index === 0 ? 'Preço Venda *' : undefined}
                   type="number"
                   step="0.01"
                   min="0"
                   error={errors.items?.[index]?.unit_price?.message}
                   {...register(`items.${index}.unit_price`, { valueAsNumber: true })}
+                />
+                <Input
+                  label={index === 0 ? 'Custo *' : undefined}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  error={errors.items?.[index]?.cost_price?.message}
+                  {...register(`items.${index}.cost_price`, { valueAsNumber: true })}
                 />
                 <div className={index === 0 ? 'pt-6' : ''}>
                   <Button
@@ -246,7 +256,15 @@ export function SaleFormPage() {
               </div>
             ))}
 
-            <div className="flex justify-end pt-4 border-t">
+            <div className="flex justify-end gap-6 pt-4 border-t">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Custo: </span>
+                <span className="font-medium text-red-600">{formatCurrency(totalCost)}</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Lucro: </span>
+                <span className="font-medium text-green-600">{formatCurrency(totalAmount - totalCost)}</span>
+              </div>
               <div className="text-lg font-bold">
                 Total: {formatCurrency(totalAmount)}
               </div>
