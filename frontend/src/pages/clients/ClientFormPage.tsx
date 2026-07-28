@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { clientsApi } from '@/api/clients';
 import { clientSchema, type ClientFormData } from '@/utils/validators';
@@ -17,6 +17,7 @@ export function ClientFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: client, isLoading: loadingClient } = useQuery({
@@ -55,6 +56,7 @@ export function ClientFormPage() {
       isEditing ? clientsApi.update(Number(id), data) : clientsApi.create(data),
     onSuccess: () => {
       toast('success', isEditing ? 'Cliente atualizado' : 'Cliente criado');
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
       navigate('/clients');
     },
     onError: (error: any) => {

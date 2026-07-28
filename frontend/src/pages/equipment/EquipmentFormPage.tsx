@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { equipmentApi } from '@/api/equipment';
 import { clientsApi } from '@/api/clients';
@@ -18,6 +18,7 @@ export function EquipmentFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEditing = !!id;
 
   const { data: equipment, isLoading: loadingEquipment } = useQuery({
@@ -60,6 +61,7 @@ export function EquipmentFormPage() {
       isEditing ? equipmentApi.update(Number(id), data) : equipmentApi.create(data),
     onSuccess: () => {
       toast('success', isEditing ? 'Equipamento atualizado' : 'Equipamento criado');
+      queryClient.invalidateQueries({ queryKey: ['equipment'] });
       navigate('/equipment');
     },
     onError: () => {

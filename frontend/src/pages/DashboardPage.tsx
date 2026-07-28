@@ -7,12 +7,14 @@ import { LoadingPage } from '@/components/ui/loading-spinner';
 import { formatCurrency } from '@/utils/formatters';
 
 export function DashboardPage() {
-  const { data: stats, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: dashboardApi.getStats,
   });
 
   if (isLoading) return <LoadingPage />;
+
+  const stats = data?.stats;
 
   return (
     <div className="space-y-6">
@@ -30,12 +32,12 @@ export function DashboardPage() {
         <StatCard
           icon={<Monitor className="h-5 w-5" />}
           label="Equipamentos"
-          value={stats?.total_equipments || 0}
+          value={stats?.total_equipment || 0}
         />
         <StatCard
           icon={<FileText className="h-5 w-5" />}
           label="OS Abertas"
-          value={stats?.open_orders || 0}
+          value={stats?.orders_by_status?.open || 0}
         />
         <StatCard
           icon={<DollarSign className="h-5 w-5" />}
@@ -50,7 +52,7 @@ export function DashboardPage() {
             <CardTitle className="text-base">OS em Andamento</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600">{stats?.in_progress_orders || 0}</p>
+            <p className="text-3xl font-bold text-blue-600">{stats?.orders_by_status?.in_progress || 0}</p>
           </CardContent>
         </Card>
 
@@ -59,7 +61,7 @@ export function DashboardPage() {
             <CardTitle className="text-base">OS Concluídas</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">{stats?.completed_orders || 0}</p>
+            <p className="text-3xl font-bold text-green-600">{stats?.orders_by_status?.completed || 0}</p>
           </CardContent>
         </Card>
 

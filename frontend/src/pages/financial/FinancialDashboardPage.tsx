@@ -9,7 +9,7 @@ import { formatCurrency } from '@/utils/formatters';
 export function FinancialDashboardPage() {
   const { data: summary, isLoading } = useQuery({
     queryKey: ['financial-summary'],
-    queryFn: financialApi.getSummary,
+    queryFn: financialApi.getDashboard,
   });
 
   if (isLoading) return <LoadingPage />;
@@ -24,45 +24,45 @@ export function FinancialDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<TrendingUp className="h-5 w-5" />}
-          label="Receitas"
+          label="Receitas Totais"
           value={formatCurrency(summary?.total_income || 0)}
         />
         <StatCard
           icon={<TrendingDown className="h-5 w-5" />}
-          label="Despesas"
-          value={formatCurrency(summary?.total_expenses || 0)}
+          label="Despesas Totais"
+          value={formatCurrency(summary?.total_expense || 0)}
         />
         <StatCard
           icon={<DollarSign className="h-5 w-5" />}
-          label="Saldo"
+          label="Saldo Geral"
           value={formatCurrency(summary?.balance || 0)}
         />
         <StatCard
           icon={<Clock className="h-5 w-5" />}
-          label="Recebimentos Pendentes"
-          value={formatCurrency(summary?.pending_receivables || 0)}
+          label="Saldo Mensal"
+          value={formatCurrency(summary?.monthly_balance || 0)}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">A Pagar</CardTitle>
+            <CardTitle className="text-base">Receitas Mensais</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600">
-              {formatCurrency(summary?.pending_payables || 0)}
+            <p className="text-2xl font-bold text-green-600">
+              {formatCurrency(summary?.monthly_income || 0)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">A Receber</CardTitle>
+            <CardTitle className="text-base">Despesas Mensais</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">
-              {formatCurrency(summary?.pending_receivables || 0)}
+            <p className="text-2xl font-bold text-red-600">
+              {formatCurrency(summary?.monthly_expense || 0)}
             </p>
           </CardContent>
         </Card>

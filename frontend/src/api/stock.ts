@@ -47,6 +47,11 @@ export const stockApi = {
     return response.data.data;
   },
 
+  listCategories: async () => {
+    const response = await api.get<ApiResponse<StockCategory[]>>('/stock/categories');
+    return response.data.data;
+  },
+
   listMovements: async (filters?: StockMovementFilters) => {
     const response = await api.get<PaginatedResponse<StockMovement>>('/stock/movements', { params: filters });
     return response.data;
