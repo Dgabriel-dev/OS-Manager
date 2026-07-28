@@ -1,0 +1,47 @@
+# Environment files
+.env
+backend/.env
+frontend/.env
+
+# Dependencies
+/backend/vendor/
+/frontend/node_modules/
+
+# Build
+/frontend/dist/
+
+# IDE
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+/docker/pgdata/
+/docker/redisdata/
+
+# Laravel
+/backend/storage/logs/*.log
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/bootstrap/cache/*
+
+# PHP
+*.phar
+
+# Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+/backend/coverage/
+
+# Pest
+/backend/tests/.pest/
