@@ -17,6 +17,10 @@ import { StockMovementPage } from '@/pages/stock/StockMovementPage';
 import { TransactionListPage } from '@/pages/financial/TransactionListPage';
 import { TransactionFormPage } from '@/pages/financial/TransactionFormPage';
 import { FinancialDashboardPage } from '@/pages/financial/FinancialDashboardPage';
+import { SaleListPage } from '@/pages/sales/SaleListPage';
+import { SaleFormPage } from '@/pages/sales/SaleFormPage';
+import { SaleDetailPage } from '@/pages/sales/SaleDetailPage';
+import { SaleCategoryListPage } from '@/pages/sales/SaleCategoryListPage';
 import { UserListPage } from '@/pages/users/UserListPage';
 import { UserFormPage } from '@/pages/users/UserFormPage';
 import { NotificationListPage } from '@/pages/notifications/NotificationListPage';
@@ -76,6 +80,11 @@ export function AppRouter() {
             <Route path="/financial/new" element={<TransactionFormPage />} />
             <Route path="/financial/:id" element={<TransactionFormPage />} />
             <Route path="/financial/:id/edit" element={<TransactionFormPage />} />
+            <Route path="/sales" element={<SaleListPage />} />
+            <Route path="/sales/new" element={<SaleFormPage />} />
+            <Route path="/sales/categories" element={<SaleCategoryListPage />} />
+            <Route path="/sales/:id" element={<SaleDetailPage />} />
+            <Route path="/sales/:id/edit" element={<SaleFormPage />} />
             <Route path="/users" element={<UserListPage />} />
             <Route path="/users/new" element={<UserFormPage />} />
             <Route path="/users/:id" element={<UserFormPage />} />

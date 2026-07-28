@@ -8,6 +8,7 @@ use App\Repositories\Contracts\EquipmentRepositoryInterface;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
 use App\Repositories\Contracts\OrderHistoryRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\SaleRepositoryInterface;
 use App\Repositories\Contracts\ServiceOrderRepositoryInterface;
 use App\Repositories\Contracts\StockItemRepositoryInterface;
 use App\Repositories\Contracts\StockMovementRepositoryInterface;
@@ -17,6 +18,7 @@ use App\Repositories\EquipmentRepository;
 use App\Repositories\NotificationRepository;
 use App\Repositories\OrderHistoryRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\SaleRepository;
 use App\Repositories\ServiceOrderRepository;
 use App\Repositories\StockItemRepository;
 use App\Repositories\StockMovementRepository;
@@ -38,5 +40,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(OrderHistoryRepositoryInterface::class, OrderHistoryRepository::class);
         $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
+        $this->app->bind(SaleRepositoryInterface::class, SaleRepository::class);
     }
 }

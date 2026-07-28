@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\FinancialController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\SaleController;
 use App\Http\Controllers\Api\ServiceOrderController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Api\UserController;
@@ -50,7 +51,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/financial/transactions/{id}', [FinancialController::class, 'updateTransaction']);
     Route::delete('/financial/transactions/{id}', [FinancialController::class, 'destroyTransaction']);
     Route::get('/financial/dashboard', [FinancialController::class, 'dashboard']);
+    Route::get('/financial/revenue-by-month', [FinancialController::class, 'revenueByMonth']);
     Route::get('/financial/categories', [FinancialController::class, 'indexCategories']);
+
+    Route::get('/sales', [SaleController::class, 'index']);
+    Route::post('/sales', [SaleController::class, 'store']);
+    Route::get('/sales/categories', [SaleController::class, 'indexCategories']);
+    Route::post('/sales/categories', [SaleController::class, 'storeCategory']);
+    Route::get('/sales/{id}', [SaleController::class, 'show']);
+    Route::put('/sales/{id}', [SaleController::class, 'update']);
+    Route::delete('/sales/{id}', [SaleController::class, 'destroy']);
 
     Route::apiResource('users', UserController::class);
     Route::get('/roles', [RoleController::class, 'index']);

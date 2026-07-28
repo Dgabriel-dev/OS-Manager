@@ -88,6 +88,15 @@ class FinancialController extends Controller
         ]);
     }
 
+    public function revenueByMonth(): JsonResponse
+    {
+        $data = $this->service->getRevenueByMonth();
+
+        return response()->json([
+            'data' => $data,
+        ]);
+    }
+
     public function indexCategories(): JsonResponse
     {
         $categories = \App\Models\FinancialCategory::orderBy('name')->get();

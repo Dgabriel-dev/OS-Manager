@@ -2,14 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\Sale;
+use App\Models\ServiceOrder;
 use App\Repositories\Contracts\TransactionRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class FinancialService
 {
-    public function __construct(protected TransactionRepositoryInterface $repository)
-    {
+    public function __construct(
+        protected TransactionRepositoryInterface $repository,
+        protected ServiceOrder $serviceOrderModel,
+        protected Sale $saleModel,
+    ) {
     }
 
     public function listTransactions(array $filters = []): LengthAwarePaginator
@@ -59,6 +64,31 @@ class FinancialService
         $monthlyIncome = $this->repository->getTotalByType('income', $startOfMonth, $endOfMonth);
         $monthlyExpense = $this->repository->getTotalByType('expense', $startOfMonth, $endOfMonth);
 
+        $ordersByStatus = $this->serviceOrderModel->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->get()
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $totalOrders = $this->serviceOrderModel->count();
+
+        $pendingRevenue = (float) $this->serviceOrderModel
+            ->whereIn('status', ['open', 'in_progress', 'waiting_parts'])
+            ->sum('estimated_value');
+
+        $completedRevenue = (float) $this->serviceOrderModel
+            ->whereIn('status', ['completed', 'delivered'])
+            ->sum('final_value');
+
+        $monthlyCompletedRevenue = (float) $this->serviceOrderModel
+            ->whereIn('status', ['completed', 'delivered'])
+            ->whereBetween('delivered_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+            ->sum('final_value');
+
+        $monthlyOrdersCreated = $this->serviceOrderModel
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+            ->count();
+
         return [
             'total_income' => $totalIncome,
             'total_expense' => $totalExpense,
@@ -66,6 +96,12 @@ class FinancialService
             'monthly_income' => $monthlyIncome,
             'monthly_expense' => $monthlyExpense,
             'monthly_balance' => $monthlyIncome - $monthlyExpense,
+            'total_orders' => $totalOrders,
+            'orders_by_status' => $ordersByStatus,
+            'pending_revenue' => $pendingRevenue,
+            'completed_revenue' => $completedRevenue,
+            'monthly_completed_revenue' => $monthlyCompletedRevenue,
+            'monthly_orders_created' => $monthlyOrdersCreated,
         ];
     }
 
@@ -94,6 +130,58 @@ class FinancialService
             'year' => $year,
             'income' => $this->repository->getTotalByType('income', $startDate, $endDate),
             'expense' => $this->repository->getTotalByType('expense', $startDate, $endDate),
+        ];
+    }
+
+    public function getRevenueByMonth(): array
+    {
+        $now = Carbon::now();
+        $months = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = $now->copy()->subMonths($i);
+            $startOfMonth = $date->copy()->startOfMonth()->toDateString();
+            $endOfMonth = $date->copy()->endOfMonth()->toDateString();
+            $monthKey = $date->format('Y-m');
+            $monthLabel = $date->format('M/Y');
+
+            $transactionIncome = $this->repository->getTotalByType('income', $startOfMonth, $endOfMonth);
+            $transactionExpense = $this->repository->getTotalByType('expense', $startOfMonth, $endOfMonth);
+
+            $saleRevenue = (float) $this->saleModel
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+                ->sum('total_amount');
+
+            $months[] = [
+                'month' => $monthKey,
+                'label' => $monthLabel,
+                'income' => $transactionIncome + $saleRevenue,
+                'transaction_income' => $transactionIncome,
+                'sale_revenue' => $saleRevenue,
+                'expense' => $transactionExpense,
+                'balance' => ($transactionIncome + $saleRevenue) - $transactionExpense,
+            ];
+        }
+
+        $cumulativeRevenue = 0;
+        $currentMonthRevenue = 0;
+        $currentMonthKey = $now->format('Y-m');
+
+        foreach ($months as &$month) {
+            $cumulativeRevenue += $month['income'];
+            $month['cumulative'] = $cumulativeRevenue;
+
+            if ($month['month'] === $currentMonthKey) {
+                $currentMonthRevenue = $month['income'];
+            }
+        }
+        unset($month);
+
+        return [
+            'months' => $months,
+            'cumulative_revenue' => $cumulativeRevenue,
+            'current_month_revenue' => $currentMonthRevenue,
         ];
     }
 }

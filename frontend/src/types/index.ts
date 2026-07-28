@@ -148,6 +148,34 @@ export interface FinancialCategory {
   type: string;
 }
 
+export interface Sale {
+  id: number;
+  client: Client | null;
+  user: User | null;
+  total_amount: number;
+  payment_method: string | null;
+  payment_status: 'pending' | 'paid' | 'cancelled';
+  notes: string | null;
+  items: SaleItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaleItem {
+  id: number;
+  name: string;
+  category: SaleCategory | null;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+}
+
+export interface SaleCategory {
+  id: number;
+  name: string;
+  created_at: string;
+}
+
 export interface DashboardStats {
   total_clients: number;
   total_equipment: number;

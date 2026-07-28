@@ -19,6 +19,29 @@ export interface FinancialSummary {
   monthly_income: number;
   monthly_expense: number;
   monthly_balance: number;
+  total_orders: number;
+  orders_by_status: Record<string, number>;
+  pending_revenue: number;
+  completed_revenue: number;
+  monthly_completed_revenue: number;
+  monthly_orders_created: number;
+}
+
+export interface MonthlyRevenue {
+  month: string;
+  label: string;
+  income: number;
+  transaction_income: number;
+  sale_revenue: number;
+  expense: number;
+  balance: number;
+  cumulative: number;
+}
+
+export interface RevenueByMonthResponse {
+  months: MonthlyRevenue[];
+  cumulative_revenue: number;
+  current_month_revenue: number;
 }
 
 export const financialApi = {
@@ -49,6 +72,11 @@ export const financialApi = {
 
   getDashboard: async () => {
     const response = await api.get<ApiResponse<FinancialSummary>>('/financial/dashboard');
+    return response.data.data;
+  },
+
+  getRevenueByMonth: async () => {
+    const response = await api.get<ApiResponse<RevenueByMonthResponse>>('/financial/revenue-by-month');
     return response.data.data;
   },
 

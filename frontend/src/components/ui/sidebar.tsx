@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Wrench,
+  ShoppingCart,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Button } from './button';
@@ -35,6 +36,7 @@ const navItems: NavItem[] = [
   { label: 'Equipamentos', href: '/equipment', icon: Monitor },
   { label: 'Ordens de Serviço', href: '/service-orders', icon: FileText },
   { label: 'Estoque', href: '/stock', icon: Package },
+  { label: 'Vendas', href: '/sales', icon: ShoppingCart },
   { label: 'Financeiro', href: '/financial', icon: DollarSign },
   { label: 'Usuários', href: '/users', icon: UserCog, roles: ['admin'] },
   { label: 'Configurações', href: '/settings', icon: Settings },

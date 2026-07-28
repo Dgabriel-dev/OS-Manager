@@ -145,3 +145,26 @@ export const changePasswordSchema = z.object({
 });
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
+export const saleCategorySchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+});
+
+export type SaleCategoryFormData = z.infer<typeof saleCategorySchema>;
+
+export const saleItemSchema = z.object({
+  name: z.string().min(1, 'Nome do item é obrigatório'),
+  sale_category_id: z.number().optional().nullable(),
+  quantity: z.number().min(1, 'Quantidade deve ser maior que 0'),
+  unit_price: z.number().min(0, 'Preço inválido'),
+});
+
+export const saleSchema = z.object({
+  client_id: z.number().optional().nullable(),
+  payment_method: z.string().optional().nullable(),
+  payment_status: z.enum(['pending', 'paid', 'cancelled']).optional(),
+  notes: z.string().optional().nullable(),
+  items: z.array(saleItemSchema).min(1, 'A venda deve ter pelo menos um item'),
+});
+
+export type SaleFormData = z.infer<typeof saleSchema>;
