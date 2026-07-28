@@ -35,6 +35,18 @@ export const equipmentApi = {
     return response.data;
   },
 
+  restore: async (id: number) => {
+    const response = await api.post(`/equipment/${id}/restore`);
+    return response.data;
+  },
+
+  byClient: async (clientId: number, perPage?: number) => {
+    const response = await api.get<PaginatedResponse<Equipment>>(`/clients/${clientId}/equipment`, {
+      params: { per_page: perPage },
+    });
+    return response.data;
+  },
+
   uploadFile: async (id: number, file: File) => {
     const formData = new FormData();
     formData.append('file', file);

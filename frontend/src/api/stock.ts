@@ -10,7 +10,7 @@ export interface StockItemFilters {
 }
 
 export interface StockMovementFilters {
-  stock_item_id?: number;
+  item_id?: number;
   type?: string;
   page?: number;
   per_page?: number;
@@ -43,7 +43,7 @@ export const stockApi = {
   },
 
   adjustStock: async (id: number, data: { type: string; quantity: number; notes?: string }) => {
-    const response = await api.put<ApiResponse<StockMovement>>(`/stock/items/${id}/adjust`, data);
+    const response = await api.put<ApiResponse<StockItem>>(`/stock/items/${id}/adjust`, data);
     return response.data.data;
   },
 

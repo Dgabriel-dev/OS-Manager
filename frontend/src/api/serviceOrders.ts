@@ -37,6 +37,11 @@ export const serviceOrdersApi = {
     return response.data;
   },
 
+  restore: async (id: number) => {
+    const response = await api.post(`/service-orders/${id}/restore`);
+    return response.data;
+  },
+
   updateStatus: async (id: number, status: string) => {
     const response = await api.put<ApiResponse<ServiceOrder>>(`/service-orders/${id}/status`, { status });
     return response.data.data;

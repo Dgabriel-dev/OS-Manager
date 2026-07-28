@@ -5,7 +5,6 @@ import { serviceOrdersApi } from '@/api/serviceOrders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { LoadingPage } from '@/components/ui/loading-spinner';
 import { useToast } from '@/components/ui/toast';
 import { formatDate, formatDateTime, formatCurrency } from '@/utils/formatters';
@@ -168,7 +167,7 @@ export function ServiceOrderDetailPage() {
                 <tbody>
                   {order.items.map((item) => (
                     <tr key={item.id} className="border-b">
-                      <td className="p-2">{item.description}</td>
+                      <td className="p-2">{item.stock_item?.name || item.description || '-'}</td>
                       <td className="p-2 text-center">{item.quantity}</td>
                       <td className="p-2 text-right">{formatCurrency(item.unit_price)}</td>
                       <td className="p-2 text-right">{formatCurrency(item.total_price)}</td>

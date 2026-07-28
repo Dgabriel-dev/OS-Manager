@@ -8,7 +8,6 @@ import { stockApi } from '@/api/stock';
 import { stockItemSchema, type StockItemFormData } from '@/utils/validators';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 
@@ -34,14 +33,10 @@ export function StockItemFormPage() {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<StockItemFormData>({
     resolver: zodResolver(stockItemSchema) as any,
-    defaultValues: { is_active: true },
   });
-
-  const isActive = watch('is_active');
 
   useEffect(() => {
     if (item) {
@@ -55,7 +50,6 @@ export function StockItemFormPage() {
       setValue('quantity', item.quantity);
       setValue('minimum_quantity', item.minimum_quantity);
       setValue('location', item.location);
-      setValue('is_active', item.is_active);
     }
   }, [item, setValue]);
 
@@ -155,11 +149,6 @@ export function StockItemFormPage() {
               />
             </div>
             <Input label="Localização" {...register('location')} />
-            <Switch
-              label="Item Ativo"
-              checked={isActive ?? true}
-              onCheckedChange={(checked) => setValue('is_active', checked)}
-            />
           </CardContent>
         </Card>
 

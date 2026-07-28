@@ -64,8 +64,11 @@ export function EquipmentFormPage() {
       queryClient.invalidateQueries({ queryKey: ['equipment'] });
       navigate('/equipment');
     },
-    onError: () => {
-      toast('error', 'Erro ao salvar equipamento');
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.response?.data?.errors
+        ? Object.values(error.response.data.errors).flat().join(', ')
+        : 'Erro ao salvar equipamento';
+      toast('error', message);
     },
   });
 

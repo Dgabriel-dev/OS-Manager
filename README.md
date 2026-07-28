@@ -142,14 +142,19 @@ docker compose exec php php artisan migrate --seed --force
 docker compose exec php php artisan storage:link
 ```
 
-### Passo 3: Instalar e iniciar o frontend
+### Passo 3: Aplique correcoes do backend
+```bash
+sudo ./fix-backend.sh
+```
+
+### Passo 4: Instalar e iniciar o frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Passo 4: Acesse o sistema
+### Passo 5: Acesse o sistema
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:8080/api
 - **MailHog:** http://localhost:8025
@@ -229,6 +234,8 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | GET | /api/equipment/{id} | Detalhes do equipamento |
 | PUT | /api/equipment/{id} | Atualizar equipamento |
 | DELETE | /api/equipment/{id} | Remover equipamento |
+| POST | /api/equipment/{id}/restore | Restaurar equipamento |
+| GET | /api/clients/{id}/equipment | Equipamentos por cliente |
 
 ### Ordens de Servico
 | Metodo | Endpoint | Descricao |
@@ -238,7 +245,9 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | GET | /api/service-orders/{id} | Detalhes da OS |
 | PUT | /api/service-orders/{id} | Atualizar OS |
 | DELETE | /api/service-orders/{id} | Remover OS |
+| POST | /api/service-orders/{id}/restore | Restaurar OS |
 | PUT | /api/service-orders/{id}/status | Alterar status |
+| GET | /api/service-orders/{id}/history | Historico da OS |
 
 ### Estoque
 | Metodo | Endpoint | Descricao |
@@ -250,6 +259,7 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | DELETE | /api/stock/items/{id} | Remover item |
 | PUT | /api/stock/items/{id}/adjust | Ajustar estoque |
 | GET | /api/stock/movements | Movimentacoes |
+| GET | /api/stock/categories | Categorias de estoque |
 
 ### Financeiro
 | Metodo | Endpoint | Descricao |
@@ -260,6 +270,7 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | PUT | /api/financial/transactions/{id} | Atualizar transacao |
 | DELETE | /api/financial/transactions/{id} | Remover transacao |
 | GET | /api/financial/dashboard | Dashboard financeiro |
+| GET | /api/financial/categories | Categorias financeiras |
 
 ### Outros
 | Metodo | Endpoint | Descricao |

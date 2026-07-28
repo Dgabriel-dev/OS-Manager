@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
-import { formatCPF_CNPJ, formatPhone } from '@/utils/formatters';
 
 export function ClientFormPage() {
   const { id } = useParams();
@@ -30,7 +29,6 @@ export function ClientFormPage() {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
@@ -67,21 +65,6 @@ export function ClientFormPage() {
     },
   });
 
-  const cpfCnpjValue = watch('cpf_cnpj');
-  const phoneValue = watch('phone');
-
-  useEffect(() => {
-    if (cpfCnpjValue) {
-      setValue('cpf_cnpj', formatCPF_CNPJ(cpfCnpjValue));
-    }
-  }, [cpfCnpjValue, setValue]);
-
-  useEffect(() => {
-    if (phoneValue) {
-      setValue('phone', formatPhone(phoneValue));
-    }
-  }, [phoneValue, setValue]);
-
   if (isEditing && loadingClient) {
     return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
@@ -114,6 +97,7 @@ export function ClientFormPage() {
                 label="CPF/CNPJ *"
                 error={errors.cpf_cnpj?.message}
                 {...register('cpf_cnpj')}
+                placeholder="000.000.000-00"
               />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
@@ -121,10 +105,12 @@ export function ClientFormPage() {
                 label="Telefone *"
                 error={errors.phone?.message}
                 {...register('phone')}
+                placeholder="(00) 00000-0000"
               />
               <Input
                 label="WhatsApp"
                 {...register('whatsapp')}
+                placeholder="(00) 00000-0000"
               />
             </div>
             <Input

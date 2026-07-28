@@ -76,11 +76,12 @@ export interface ServiceOrder {
 
 export interface OrderItem {
   id: number;
-  description: string;
+  stock_item?: StockItem;
+  description?: string;
   quantity: number;
   unit_price: number;
   total_price: number;
-  type: string;
+  type?: string;
 }
 
 export interface OrderHistory {
@@ -105,7 +106,6 @@ export interface StockItem {
   minimum_quantity: number;
   location: string | null;
   is_low_stock: boolean;
-  is_active: boolean;
   created_at: string;
 }
 
@@ -150,10 +150,15 @@ export interface FinancialCategory {
 
 export interface DashboardStats {
   total_clients: number;
-  total_equipments: number;
-  open_orders: number;
-  in_progress_orders: number;
-  completed_orders: number;
+  total_equipment: number;
+  orders_by_status: {
+    open: number;
+    in_progress: number;
+    waiting_parts: number;
+    completed: number;
+    delivered: number;
+    cancelled: number;
+  };
   monthly_revenue: number;
   low_stock_count: number;
 }
