@@ -1,6 +1,6 @@
-# OS Assist - Sistema de Ordem de Serviço
+# OS Assist - Sistema de Ordem de Servico
 
-Sistema profissional de gerenciamento de ordens de serviço para assistência técnica.
+Sistema profissional de gerenciamento de ordens de servico para assistencia tecnica e vendas.
 
 [![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel)](https://laravel.com)
@@ -18,9 +18,10 @@ Sistema profissional de gerenciamento de ordens de serviço para assistência t�
 - **Dashboard** - Visao geral com cards, graficos e ultimas ordens
 - **Clientes** - Cadastro completo com busca, filtros e paginacao
 - **Equipamentos** - Cadastro com fotos, arquivos e senhas criptografadas
-- **Ordens de Servico** - Fluxo completo com 9 status e historico de alteracoes
+- **Ordens de Servico** - Fluxo completo com 6 status e historico de alteracoes
 - **Estoque** - Controle de entrada/saida com alerta de estoque baixo
-- **Financeiro** - Receitas, despesas, pagamentos e relatorios
+- **Vendas** - Venda de produtos com categorias, custo e lucro
+- **Financeiro** - Receitas, despesas, grafico mensal, lucro e relatorios
 - **Usuarios** - Sistema RBAC com 4 perfis de acesso
 - **Notificacoes** - Email e sistema interno
 - **PDFs** - OS, orcamento, recibo, garantia e laudo tecnico
@@ -53,14 +54,11 @@ backend/
       Contracts/           # Interfaces para Dependency Injection
     Models/                # Eloquent Models com relationships
     Policies/              # Authorization Policies
-    Enums/                 # PHP 8.4 Enums
-    Exceptions/            # Custom Exceptions
   database/
-    migrations/            # 23 migrations organizadas
+    migrations/            # Migrations organizadas
     seeders/               # Seeders com dados iniciais
   routes/
     api.php                # Rotas REST protegidas
-  tests/                   # Testes Pest PHP
 ```
 
 ### Frontend (Component Architecture)
@@ -71,7 +69,7 @@ frontend/src/
   contexts/                # AuthContext e ThemeContext
   hooks/                   # Custom React Hooks
   layouts/                 # AuthLayout e DashboardLayout
-  pages/                   # 19 paginas organizadas por modulo
+  pages/                   # Paginas organizadas por modulo
   routes/                  # React Router com guards
   types/                   # TypeScript interfaces
   utils/                   # Formatters, validators (Zod), helpers
@@ -99,8 +97,6 @@ frontend/src/
 | Session Fixation | Regenerate session on login |
 | Password Hash | Bcrypt (via Hash::make) |
 | Cookies | HttpOnly + Secure + SameSite=Strict |
-| CSP | Content Security Policy headers |
-| HSTS | Strict-Transport-Security |
 | Rate Limiting | Laravel Rate Limiter |
 | Validacao | Form Requests com rules rigorosas |
 | Auditoria | Log completo de todas as alteracoes |
@@ -113,6 +109,7 @@ frontend/src/
 ### Pre-requisitos
 - Docker e Docker Compose v2+
 - Git
+- Node.js 18+
 
 ### Passo 1: Clone o repositorio
 ```bash
@@ -142,19 +139,14 @@ docker compose exec php php artisan migrate --seed --force
 docker compose exec php php artisan storage:link
 ```
 
-### Passo 3: Aplique correcoes do backend
-```bash
-sudo ./fix-backend.sh
-```
-
-### Passo 4: Instalar e iniciar o frontend
+### Passo 3: Instalar e iniciar o frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Passo 5: Acesse o sistema
+### Passo 4: Acesse o sistema
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:8080/api
 - **MailHog:** http://localhost:8025
@@ -195,9 +187,6 @@ docker compose logs -f php
 
 # Executar artisan
 docker compose exec php php artisan <comando>
-
-# Executar testes
-docker compose exec php php artisan test
 
 # Rodar migrate:fresh com seed
 docker compose exec php php artisan migrate:fresh --seed --force
@@ -261,6 +250,17 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | GET | /api/stock/movements | Movimentacoes |
 | GET | /api/stock/categories | Categorias de estoque |
 
+### Vendas
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | /api/sales | Listar vendas |
+| POST | /api/sales | Criar venda |
+| GET | /api/sales/{id} | Detalhes da venda |
+| PUT | /api/sales/{id} | Atualizar venda |
+| DELETE | /api/sales/{id} | Remover venda |
+| GET | /api/sales/categories | Categorias de venda |
+| POST | /api/sales/categories | Criar categoria de venda |
+
 ### Financeiro
 | Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
@@ -270,6 +270,7 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | PUT | /api/financial/transactions/{id} | Atualizar transacao |
 | DELETE | /api/financial/transactions/{id} | Remover transacao |
 | GET | /api/financial/dashboard | Dashboard financeiro |
+| GET | /api/financial/revenue-by-month | Receita mensal (12 meses) |
 | GET | /api/financial/categories | Categorias financeiras |
 
 ### Outros
@@ -290,30 +291,6 @@ docker compose exec php php artisan migrate:fresh --seed --force
 
 ---
 
-## Testes
-
-```bash
-# Executar todos os testes
-docker compose exec php php artisan test
-
-# Executar testes especificos
-docker compose exec php php artisan test tests/Feature/Auth/
-docker compose exec php php artisan test tests/Feature/Client/
-docker compose exec php php artisan test tests/Feature/ServiceOrder/
-docker compose exec php php artisan test tests/Feature/Stock/
-docker compose exec php php artisan test tests/Feature/Permission/
-```
-
-### Cobertura
-- Autenticacao (login, logout, perfil)
-- Clientes (CRUD completo)
-- Ordens de Servico (criacao, status, historico)
-- Estoque (movimentacoes, alertas)
-- Permissoes (RBAC por perfil)
-- Dashboard (dados retornados corretamente)
-
----
-
 ## Banco de Dados
 
 ### Modelo Relacional
@@ -329,6 +306,10 @@ docker compose exec php php artisan test tests/Feature/Permission/
 - **stock_items** -> **stock_movements** (1:N)
 - **financial_categories** -> **transactions** (1:N)
 - **service_orders** -> **transactions** (1:N)
+- **sale_categories** -> **sale_items** (1:N)
+- **sales** -> **sale_items** (1:N)
+- **clients** -> **sales** (1:N, opcional)
+- **users** -> **sales** (1:N, vendedor)
 - **users** -> **notifications** (1:N)
 - **users** -> **audits** (1:N)
 
@@ -347,7 +328,6 @@ OS-Manager/
     config/              # Configuracoes
     database/            # Migrations, seeders
     routes/              # Definicao de rotas
-    tests/               # Testes Pest PHP
   frontend/              # React + TypeScript
     src/                 # Codigo fonte
     dist/                # Build de producao
@@ -363,12 +343,12 @@ OS-Manager/
 ### Backend
 - PHP 8.4 | Laravel 13 | PostgreSQL 17 | Redis 7
 - Laravel Sanctum | Eloquent ORM | DomPDF
-- Pest PHP | Repository Pattern | Service Layer
+- Repository Pattern | Service Layer
 
 ### Frontend
-- React 18 | TypeScript 5 | Vite
+- React 18 | TypeScript | Vite
 - Tailwind CSS 4 | shadcn/ui style
-- React Router 6 | React Hook Form | Zod
+- React Router | React Hook Form | Zod
 - TanStack Query | Axios | Recharts
 - Lucide Icons | date-fns
 

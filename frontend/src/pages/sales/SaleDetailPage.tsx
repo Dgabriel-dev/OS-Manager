@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, Pencil } from 'lucide-react';
+import { ArrowLeft, Loader2, Pencil, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { salesApi } from '@/api/sales';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +32,21 @@ export function SaleDetailPage() {
   const { data: sale, isLoading } = useQuery({
     queryKey: ['sale', id],
     queryFn: () => salesApi.getById(Number(id)),
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (data: { payment_status: string; payment_method?: string }) =>
+      salesApi.update(Number(id), data),
+    onSuccess: () => {
+      toast('success', 'Status atualizado com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['sale', id] });
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-revenue-by-month'] });
+    },
+    onError: () => {
+      toast('error', 'Erro ao atualizar status');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -102,7 +117,7 @@ export function SaleDetailPage() {
           <CardHeader>
             <CardTitle className="text-base">Pagamento</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Status:</span>
               <Badge variant={status.variant}>{status.label}</Badge>
@@ -110,6 +125,47 @@ export function SaleDetailPage() {
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Método:</span>
               <span className="text-sm font-medium">{(sale.payment_method && paymentMethodLabels[sale.payment_method]) || sale.payment_method || '-'}</span>
+            </div>
+            <div className="flex gap-2 pt-2">
+              {sale.payment_status !== 'paid' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-green-600 border-green-600 hover:bg-green-50"
+                  onClick={() => updateStatusMutation.mutate({ payment_status: 'paid', payment_method: sale.payment_method || 'pix' })}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  <CheckCircle className="mr-1 h-4 w-4" />
+                  Marcar como Pago
+                </Button>
+              )}
+              {sale.payment_status !== 'cancelled' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 border-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    if (window.confirm('Deseja cancelar esta venda?')) {
+                      updateStatusMutation.mutate({ payment_status: 'cancelled' });
+                    }
+                  }}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  <XCircle className="mr-1 h-4 w-4" />
+                  Cancelar
+                </Button>
+              )}
+              {sale.payment_status !== 'pending' && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => updateStatusMutation.mutate({ payment_status: 'pending' })}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  <Clock className="mr-1 h-4 w-4" />
+                  Pendente
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

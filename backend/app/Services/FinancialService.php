@@ -155,7 +155,7 @@ class FinancialService
 
             $saleCost = (float) $this->saleModel
                 ->where('payment_status', 'paid')
-                ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+                ->whereBetween('sales.created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
                 ->join('sale_items', 'sales.id', '=', 'sale_items.sale_id')
                 ->sum('sale_items.cost_price');
 
