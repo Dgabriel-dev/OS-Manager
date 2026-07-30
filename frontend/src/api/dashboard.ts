@@ -12,6 +12,7 @@ interface DashboardResponse {
   revenue_chart: any[];
   top_equipments: any[];
   recent_orders: any[];
+  low_stock_items: any[];
 }
 
 export const dashboardApi = {

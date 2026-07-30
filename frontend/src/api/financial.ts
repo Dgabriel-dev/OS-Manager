@@ -25,6 +25,12 @@ export interface FinancialSummary {
   completed_revenue: number;
   monthly_completed_revenue: number;
   monthly_orders_created: number;
+  total_sale_revenue: number;
+  total_sale_cost: number;
+  total_sale_profit: number;
+  monthly_sale_revenue: number;
+  monthly_sale_cost: number;
+  monthly_sale_profit: number;
 }
 
 export interface MonthlyRevenue {

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Pencil, Clock, User, Wrench, Calendar } from 'lucide-react';
+import { ArrowLeft, Pencil, Clock, User, Wrench, Calendar, FileText, Download, FileCheck, Shield, ClipboardList } from 'lucide-react';
 import { serviceOrdersApi } from '@/api/serviceOrders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,6 +54,30 @@ export function ServiceOrderDetailPage() {
     },
   });
 
+  const downloadPdf = async (type: string) => {
+    try {
+      const apiHost = window.location.hostname;
+      const baseUrl = import.meta.env.VITE_API_URL || `http://${apiHost}:8080/api`;
+      const response = await fetch(`${baseUrl}/pdf/${type}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (!response.ok) throw new Error('Erro ao gerar PDF');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type}-${order?.order_number || id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch {
+      toast('error', 'Erro ao gerar PDF');
+    }
+  };
+
   if (isLoading) return <LoadingPage />;
   if (!order) return <div className="text-center p-8 text-muted-foreground">OS não encontrada</div>;
 
@@ -80,10 +104,28 @@ export function ServiceOrderDetailPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => navigate(`/service-orders/${id}/edit`)}>
-          <Pencil className="mr-2 h-4 w-4" />
-          Editar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => downloadPdf('service-order')}>
+            <FileText className="mr-2 h-4 w-4" />
+            OS
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => downloadPdf('budget')}>
+            <Download className="mr-2 h-4 w-4" />
+            Orçamento
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => downloadPdf('warranty')}>
+            <Shield className="mr-2 h-4 w-4" />
+            Garantia
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => downloadPdf('technical-report')}>
+            <ClipboardList className="mr-2 h-4 w-4" />
+            Laudo
+          </Button>
+          <Button onClick={() => navigate(`/service-orders/${id}/edit`)}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

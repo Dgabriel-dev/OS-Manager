@@ -45,6 +45,10 @@ class ServiceOrderService
         $data['status'] = $data['status'] ?? 'open';
         $data['entry_date'] = $data['entry_date'] ?? now()->toDateString();
         $data['warranty_days'] = $data['warranty_days'] ?? 30;
+        $data['created_by'] = $userId;
+
+        $entryDate = \Carbon\Carbon::parse($data['entry_date']);
+        $data['warranty_until'] = $entryDate->addDays($data['warranty_days'])->toDateString();
 
         $items = $data['items'] ?? [];
         unset($data['items']);
@@ -140,6 +144,14 @@ class ServiceOrderService
             'old_values' => ['status' => $oldOrder->status],
             'new_values' => ['status' => $status, 'notes' => $notes],
         ]);
+
+        if ($order->created_by) {
+            app(NotificationService::class)->sendToUser(
+                $order->created_by,
+                'Status da OS Atualizado',
+                "OS #{$order->order_number} alterada de \"{$oldOrder->status}\" para \"{$status}\""
+            );
+        }
 
         return $order;
     }

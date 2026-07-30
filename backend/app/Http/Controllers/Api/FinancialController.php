@@ -72,6 +72,8 @@ class FinancialController extends Controller
 
     public function destroyTransaction(int $id): JsonResponse
     {
+        $this->authorize('delete', Transaction::class);
+
         $this->service->deleteTransaction($id);
 
         return response()->json([

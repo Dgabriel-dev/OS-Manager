@@ -15,11 +15,13 @@ class ServiceOrder extends Model
         'client_id',
         'equipment_id',
         'technician_id',
+        'created_by',
         'priority',
         'status',
         'estimated_value',
         'final_value',
         'warranty_days',
+        'warranty_until',
         'entry_date',
         'estimated_delivery_date',
         'delivered_at',
@@ -32,6 +34,7 @@ class ServiceOrder extends Model
         'final_value' => 'decimal:2',
         'entry_date' => 'date',
         'estimated_delivery_date' => 'date',
+        'warranty_until' => 'date',
         'delivered_at' => 'datetime',
     ];
 

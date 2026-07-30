@@ -96,4 +96,43 @@ class EquipmentController extends Controller
             ],
         ]);
     }
+
+    public function uploadFile(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240',
+        ]);
+
+        $equipment = \App\Models\Equipment::findOrFail($id);
+        $file = $request->file('file');
+        $path = $file->store('equipment-files', 'public');
+
+        $equipmentFile = $equipment->equipmentFiles()->create([
+            'file_path' => $path,
+            'file_type' => $file->getClientOriginalExtension(),
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+
+        return response()->json([
+            'data' => $equipmentFile,
+            'message' => 'Arquivo enviado com sucesso.',
+        ], 201);
+    }
+
+    public function deleteFile(int $id, int $fileId): JsonResponse
+    {
+        $equipment = \App\Models\Equipment::findOrFail($id);
+        $file = $equipment->equipmentFiles()->findOrFail($fileId);
+
+        $fullPath = storage_path('app/public/' . $file->file_path);
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        $file->delete();
+
+        return response()->json([
+            'message' => 'Arquivo removido com sucesso.',
+        ]);
+    }
 }

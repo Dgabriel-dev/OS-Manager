@@ -28,6 +28,7 @@ class DashboardController extends Controller
                 'revenue_chart' => $revenueChart,
                 'top_equipments' => $topEquipments,
                 'recent_orders' => $recentOrders,
+                'low_stock_items' => $stats['low_stock_items'] ?? collect(),
             ],
         ]);
     }

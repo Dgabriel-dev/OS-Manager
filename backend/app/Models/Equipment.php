@@ -23,16 +23,20 @@ class Equipment extends Model
         'physical_state',
         'reported_defect',
         'technical_diagnosis',
-        'files',
+        'password_encrypted',
     ];
 
     protected $casts = [
-        'files' => 'array',
     ];
 
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function equipmentFiles()
+    {
+        return $this->hasMany(EquipmentFile::class);
     }
 
     public function serviceOrders()

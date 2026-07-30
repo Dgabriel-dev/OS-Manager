@@ -125,4 +125,40 @@ class ServiceOrderController extends Controller
             ),
         ]);
     }
+
+    public function addItem(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'description' => ['nullable', 'string', 'max:255'],
+            'stock_item_id' => ['nullable', 'exists:stock_items,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'unit_price' => ['required', 'numeric', 'min:0'],
+            'type' => ['nullable', 'in:part,service,labor,other'],
+        ]);
+
+        $order = \App\Models\ServiceOrder::findOrFail($id);
+        $item = $order->items()->create([
+            'stock_item_id' => $request->stock_item_id,
+            'description' => $request->description,
+            'quantity' => $request->quantity,
+            'unit_price' => $request->unit_price,
+            'total_price' => $request->quantity * $request->unit_price,
+            'type' => $request->type ?? 'service',
+        ]);
+
+        return response()->json([
+            'data' => $item,
+            'message' => 'Item adicionado com sucesso.',
+        ], 201);
+    }
+
+    public function removeItem(int $id, int $itemId): JsonResponse
+    {
+        $order = \App\Models\ServiceOrder::findOrFail($id);
+        $order->items()->where('id', $itemId)->delete();
+
+        return response()->json([
+            'message' => 'Item removido com sucesso.',
+        ]);
+    }
 }

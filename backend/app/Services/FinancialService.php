@@ -89,6 +89,26 @@ class FinancialService
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
             ->count();
 
+        $totalSaleRevenue = (float) $this->saleModel
+            ->where('payment_status', 'paid')
+            ->sum('total_amount');
+
+        $totalSaleCost = (float) $this->saleModel
+            ->where('payment_status', 'paid')
+            ->join('sale_items', 'sales.id', '=', 'sale_items.sale_id')
+            ->sum(\DB::raw('sale_items.cost_price * sale_items.quantity'));
+
+        $monthlySaleRevenue = (float) $this->saleModel
+            ->where('payment_status', 'paid')
+            ->whereBetween('sales.created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+            ->sum('total_amount');
+
+        $monthlySaleCost = (float) $this->saleModel
+            ->where('payment_status', 'paid')
+            ->whereBetween('sales.created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
+            ->join('sale_items', 'sales.id', '=', 'sale_items.sale_id')
+            ->sum(\DB::raw('sale_items.cost_price * sale_items.quantity'));
+
         return [
             'total_income' => $totalIncome,
             'total_expense' => $totalExpense,
@@ -102,6 +122,12 @@ class FinancialService
             'completed_revenue' => $completedRevenue,
             'monthly_completed_revenue' => $monthlyCompletedRevenue,
             'monthly_orders_created' => $monthlyOrdersCreated,
+            'total_sale_revenue' => $totalSaleRevenue,
+            'total_sale_cost' => $totalSaleCost,
+            'total_sale_profit' => $totalSaleRevenue - $totalSaleCost,
+            'monthly_sale_revenue' => $monthlySaleRevenue,
+            'monthly_sale_cost' => $monthlySaleCost,
+            'monthly_sale_profit' => $monthlySaleRevenue - $monthlySaleCost,
         ];
     }
 
@@ -157,7 +183,7 @@ class FinancialService
                 ->where('payment_status', 'paid')
                 ->whereBetween('sales.created_at', [$startOfMonth, $endOfMonth . ' 23:59:59'])
                 ->join('sale_items', 'sales.id', '=', 'sale_items.sale_id')
-                ->sum('sale_items.cost_price');
+                ->sum(\DB::raw('sale_items.cost_price * sale_items.quantity'));
 
             $months[] = [
                 'month' => $monthKey,

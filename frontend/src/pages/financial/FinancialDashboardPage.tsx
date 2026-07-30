@@ -46,23 +46,23 @@ export function FinancialDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<TrendingUp className="h-5 w-5" />}
-          label="Receita Acumulada"
-          value={formatCurrency(revenueData?.cumulative_revenue || 0)}
-        />
-        <StatCard
-          icon={<DollarSign className="h-5 w-5" />}
-          label="Receita do Mês"
-          value={formatCurrency(revenueData?.current_month_revenue || 0)}
+          label="Receita Total"
+          value={formatCurrency((summary?.total_income || 0) + (summary?.total_sale_revenue || 0))}
         />
         <StatCard
           icon={<TrendingDown className="h-5 w-5" />}
           label="Despesas Totais"
-          value={formatCurrency(summary?.total_expense || 0)}
+          value={formatCurrency((summary?.total_expense || 0) + (summary?.total_sale_cost || 0))}
+        />
+        <StatCard
+          icon={<DollarSign className="h-5 w-5" />}
+          label="Lucro Total"
+          value={formatCurrency((summary?.total_income || 0) - (summary?.total_expense || 0) + (summary?.total_sale_profit || 0))}
         />
         <StatCard
           icon={<Clock className="h-5 w-5" />}
           label="Saldo Mensal"
-          value={formatCurrency(summary?.monthly_balance || 0)}
+          value={formatCurrency((summary?.monthly_balance || 0) + (summary?.monthly_sale_profit || 0))}
         />
       </div>
 
@@ -96,7 +96,10 @@ export function FinancialDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-600">
-              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_profit || 0), 0) || 0)}
+              {formatCurrency(summary?.total_sale_profit || 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Receita: {formatCurrency(summary?.total_sale_revenue || 0)}
             </p>
           </CardContent>
         </Card>
@@ -106,17 +109,23 @@ export function FinancialDashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600">
-              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_cost || 0), 0) || 0)}
+              {formatCurrency(summary?.total_sale_cost || 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Lucro: {formatCurrency(summary?.total_sale_profit || 0)}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Receita de Vendas (Pago)</CardTitle>
+            <CardTitle className="text-base">Mês Atual (Vendas)</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
-              {formatCurrency(revenueData?.months?.reduce((sum, m) => sum + (m.sale_revenue || 0), 0) || 0)}
+              {formatCurrency(summary?.monthly_sale_revenue || 0)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Custo: {formatCurrency(summary?.monthly_sale_cost || 0)} | Lucro: {formatCurrency(summary?.monthly_sale_profit || 0)}
             </p>
           </CardContent>
         </Card>

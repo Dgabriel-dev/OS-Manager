@@ -75,6 +75,20 @@ class SaleController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'payment_status' => ['required', 'in:pending,paid,cancelled'],
+        ]);
+
+        $sale = $this->service->updateStatus($id, $request->payment_status, $request->user()->id);
+
+        return response()->json([
+            'data' => new SaleResource($sale->load(['client', 'items.category', 'user'])),
+            'message' => 'Status atualizado com sucesso.',
+        ]);
+    }
+
     public function indexCategories(): JsonResponse
     {
         $categories = \App\Models\SaleCategory::orderBy('name')->get();

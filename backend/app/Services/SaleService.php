@@ -102,4 +102,22 @@ class SaleService
     {
         return $this->repository->delete($id);
     }
+
+    public function updateStatus(int $id, string $paymentStatus, ?int $userId = null): Sale
+    {
+        $sale = $this->repository->update($id, ['payment_status' => $paymentStatus]);
+
+        $statusLabels = ['paid' => 'Pago', 'pending' => 'Pendente', 'cancelled' => 'Cancelado'];
+        $label = $statusLabels[$paymentStatus] ?? $paymentStatus;
+
+        if ($userId) {
+            app(NotificationService::class)->sendToRole(
+                'admin',
+                'Status de Venda Atualizado',
+                "Venda #{$sale->id} marcada como \"{$label}\""
+            );
+        }
+
+        return $sale;
+    }
 }

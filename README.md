@@ -225,6 +225,8 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | DELETE | /api/equipment/{id} | Remover equipamento |
 | POST | /api/equipment/{id}/restore | Restaurar equipamento |
 | GET | /api/clients/{id}/equipment | Equipamentos por cliente |
+| POST | /api/equipment/{id}/files | Enviar arquivo |
+| DELETE | /api/equipment/{id}/files/{fileId} | Remover arquivo |
 
 ### Ordens de Servico
 | Metodo | Endpoint | Descricao |
@@ -237,6 +239,8 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | POST | /api/service-orders/{id}/restore | Restaurar OS |
 | PUT | /api/service-orders/{id}/status | Alterar status |
 | GET | /api/service-orders/{id}/history | Historico da OS |
+| POST | /api/service-orders/{id}/items | Adicionar item |
+| DELETE | /api/service-orders/{id}/items/{itemId} | Remover item |
 
 ### Estoque
 | Metodo | Endpoint | Descricao |
@@ -258,6 +262,7 @@ docker compose exec php php artisan migrate:fresh --seed --force
 | GET | /api/sales/{id} | Detalhes da venda |
 | PUT | /api/sales/{id} | Atualizar venda |
 | DELETE | /api/sales/{id} | Remover venda |
+| PUT | /api/sales/{id}/status | Alterar status pagamento |
 | GET | /api/sales/categories | Categorias de venda |
 | POST | /api/sales/categories | Criar categoria de venda |
 
@@ -297,9 +302,11 @@ docker compose exec php php artisan migrate:fresh --seed --force
 - **roles** -> **users** (1:N)
 - **users** -> **clients** (1:N, criador)
 - **clients** -> **equipments** (1:N)
+- **users** -> **service_orders** (1:N, criador)
 - **users** -> **service_orders** (1:N, tecnico)
 - **clients** -> **service_orders** (1:N)
 - **equipments** -> **service_orders** (1:N)
+- **equipments** -> **equipment_files** (1:N)
 - **service_orders** -> **order_items** (1:N)
 - **service_orders** -> **order_histories** (1:N)
 - **stock_categories** -> **stock_items** (1:N)
