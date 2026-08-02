@@ -1,5 +1,16 @@
 <?php
 
+if (isset($_SERVER['HTTP_X_DEBUG']) || isset($_GET['_test123'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'file' => __FILE__,
+        'query' => $_GET,
+        'server' => $_SERVER['QUERY_STRING'] ?? 'N/A',
+        'uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
+    ]);
+    exit;
+}
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
