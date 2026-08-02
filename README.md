@@ -1,11 +1,11 @@
 # OS Assist - Sistema de Ordem de Servico
 
-Sistema profissional de gerenciamento de ordens de servico para assistencia tecnica e vendas.
+Sistema completo de gerenciamento de ordens de servico para assistencia tecnica, estoque e vendas.
 
 [![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel)](https://laravel.com)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
 [![Docker](https://img.shields.io/badge/Docker-24-2496ED?style=flat-square&logo=docker)](https://docker.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql)](https://postgresql.org)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis)](https://redis.io)
@@ -15,193 +15,114 @@ Sistema profissional de gerenciamento de ordens de servico para assistencia tecn
 ## Funcionalidades
 
 ### Modulos
-- **Dashboard** - Visao geral com cards, graficos e ultimas ordens
-- **Clientes** - Cadastro completo com busca, filtros e paginacao
-- **Equipamentos** - Cadastro com fotos, arquivos e senhas criptografadas
-- **Ordens de Servico** - Fluxo completo com 6 status e historico de alteracoes
-- **Estoque** - Controle de entrada/saida com alerta de estoque baixo
-- **Vendas** - Venda de produtos com categorias, custo e lucro
-- **Financeiro** - Receitas, despesas, grafico mensal, lucro e relatorios
-- **Usuarios** - Sistema RBAC com 4 perfis de acesso
-- **Notificacoes** - Email e sistema interno
-- **PDFs** - OS, orcamento, recibo, garantia e laudo tecnico
-- **Auditoria** - Log completo de todas as alteracoes
+
+| Modulo | Descricao |
+|--------|-----------|
+| **Dashboard** | Visao geral com cards, graficos de receita/despesa, ultimas OS e estoque baixo |
+| **Clientes** | Cadastro completo com busca, filtros, paginacao e restauracao |
+| **Equipamentos** | Cadastro com arquivos, senhas criptografadas e associacao a clientes |
+| **Ordens de Servico** | Fluxo completo com 6 status, historico, itens/servicos e download de PDFs |
+| **Estoque** | Controle de entrada/saida com categorias, alerta de estoque baixo e movimentacoes |
+| **Vendas** | Venda de produtos com categorias, custo por item e lucro por venda |
+| **Financeiro** | Dashboard com receita vs despesa, lucro de vendas, grafico mensal (Recharts) |
+| **Usuarios** | Sistema RBAC com 4 perfis de acesso e controle de permissoes |
+| **Notificacoes** | Notificacoes internas com leitura individual e coletiva |
+| **PDFs** | Geracao de OS, orcamento, recibo, garantia e laudo tecnico (DomPDF) |
+| **Auditoria** | Log completo de todas as alteracoes criadas, atualizadas e removidas |
+
+### Fluxo da Ordem de Servico
+
+```
+Aberta (open) -> Em Andamento (in_progress) -> Concluida (completed) -> Entregue (delivered)
+                   |
+                   +-> Aguardando Pecas (waiting_parts) -> Em Andamento
+                   |
+                   +-> Cancelada (cancelled)
+```
+
+### Status de Pagamento (Vendas)
+
+```
+Pendente (pending) -> Pago (paid)
+Pendente (pending) -> Cancelado (cancelled)
+```
 
 ### Perfis de Acesso (RBAC)
 
 | Perfil | Permissoes |
 |--------|-----------|
-| Administrador | Acesso total ao sistema |
-| Atendente | Clientes, Equipamentos, Ordens de Servico |
-| Tecnico | Visualizar OS, alterar status, laudos, pecas |
-| Financeiro | Pagamentos, relatorios, caixa |
+| **Administrador** | Acesso total ao sistema |
+| **Atendente** | Clientes, Equipamentos, Ordens de Servico |
+| **Tecnico** | Visualizar OS atribuidas, alterar status, laudos |
+| **Financeiro** | Transacoes, relatorios, dashboard financeiro |
 
 ---
 
 ## Arquitetura
 
 ### Backend (Clean Architecture)
+
 ```
 backend/
   app/
     Http/
       Controllers/Api/     # Controllers REST (thin controllers)
-      Middleware/           # Middleware de auditoria e active user
-      Requests/            # Form Requests com validacao
-      Resources/           # API Resources para responses
-    Services/              # Logica de negocio (Service Layer)
-    Repositories/          # Repository Pattern (Eloquent)
-      Contracts/           # Interfaces para Dependency Injection
-    Models/                # Eloquent Models com relationships
-    Policies/              # Authorization Policies
+      Middleware/           # AuditMiddleware, EnsureUserIsActive
+      Requests/            # Form Requests com validacao (17 Form Requests)
+      Resources/           # API Resources para responses (20 Resources)
+    Services/              # Logica de negocio (12 Services)
+    Repositories/          # Repository Pattern (11 implementations)
+      Contracts/           # Interfaces para DI (11 interfaces)
+    Models/                # Eloquent Models (20 Models)
+    Policies/              # Authorization Policies (6 Policies)
+    Exceptions/            # Excecoes customizadas
+    Providers/             # Service Providers (Repository bindings)
   database/
-    migrations/            # Migrations organizadas
-    seeders/               # Seeders com dados iniciais
+    migrations/            # 31 migrations
+    seeders/               # 8 seeders (roles, permissoes, dados iniciais)
   routes/
-    api.php                # Rotas REST protegidas
+    api.php                # 58 rotas REST protegidas
+  config/                  # 11 arquivos de configuracao
 ```
 
 ### Frontend (Component Architecture)
+
 ```
 frontend/src/
-  api/                     # Chamadas API tipadas com Axios
-  components/ui/           # Componentes reutilizaveis (shadcn/ui style)
-  contexts/                # AuthContext e ThemeContext
-  hooks/                   # Custom React Hooks
-  layouts/                 # AuthLayout e DashboardLayout
-  pages/                   # Paginas organizadas por modulo
-  routes/                  # React Router com guards
+  api/                     # 11 clientes API tipados com Axios
+  components/ui/           # 21 componentes reutilizaveis (shadcn/ui style)
+  contexts/                # AuthContext, ThemeContext
+  hooks/                   # useAuth, useDebounce, usePagination, useTheme
+  layouts/                 # AuthLayout, DashboardLayout
+  pages/                   # 23 paginas organizadas por modulo
+  routes/                  # React Router com auth guards (37 rotas)
   types/                   # TypeScript interfaces
-  utils/                   # Formatters, validators (Zod), helpers
+  utils/                   # formatters, validators (Zod), cn helper
 ```
 
 ### Padroes Arquiteturais
-- **SOLID** - Principios aplicados em todas as camadas
-- **Clean Architecture** - Separacao clara de responsabilidades
-- **Repository Pattern** - Abstracao de acesso a dados
-- **Service Layer** - Toda logica de negocio nos Services
-- **Dependency Injection** - Repositories vinculados via ServiceProvider
-- **Form Requests** - Validacao isolada dos Controllers
-- **API Resources** - Transformacao consistente das responses
-- **Policies** - Controle de autorizacao granular
+
+| Padrao | Aplicacao |
+|--------|-----------|
+| SOLID | Principios aplicados em todas as camadas |
+| Clean Architecture | Separacao clara de responsabilidades |
+| Repository Pattern | Abstracao de acesso a dados via Contracts |
+| Service Layer | Toda logica de negocio nos Services |
+| Dependency Injection | Repositories vinculados via RepositoryServiceProvider |
+| Form Requests | Validacao isolada dos Controllers |
+| API Resources | Transformacao consistente das responses |
+| Policies | Controle de autorizacao granular por perfil |
 
 ---
 
-## Seguranca
-
-| Medida | Implementacao |
-|--------|--------------|
-| SQL Injection | Eloquent ORM + prepared statements |
-| XSS | Validacao de inputs + escaping |
-| CSRF | Laravel CSRF tokens |
-| Session Fixation | Regenerate session on login |
-| Password Hash | Bcrypt (via Hash::make) |
-| Cookies | HttpOnly + Secure + SameSite=Strict |
-| Rate Limiting | Laravel Rate Limiter |
-| Validacao | Form Requests com rules rigorosas |
-| Auditoria | Log completo de todas as alteracoes |
-| RBAC | Controle por perfil de usuario |
-
----
-
-## Instalacao
-
-### Pre-requisitos
-- Docker e Docker Compose v2+
-- Git
-- Node.js 18+
-
-### Passo 1: Clone o repositorio
-```bash
-git clone https://github.com/Dgabriel-dev/OS-Manager.git
-cd OS-Manager
-```
-
-### Passo 2: Inicie os containers e instale dependencias
-```bash
-# Build e subir todos os containers (PHP 8.4 + PostgreSQL + Redis + Nginx + MailHog)
-docker compose build
-docker compose up -d
-
-# Aguardar PostgreSQL inicializar
-sleep 5
-
-# Instalar dependencias PHP
-docker compose exec php composer install
-
-# Gerar Application Key
-docker compose exec php php artisan key:generate
-
-# Rodar migrations + seeders (cria tabelas e dados iniciais)
-docker compose exec php php artisan migrate --seed --force
-
-# Criar link de storage
-docker compose exec php php artisan storage:link
-```
-
-### Passo 3: Instalar e iniciar o frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Passo 4: Acesse o sistema
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:8080/api
-- **MailHog:** http://localhost:8025
-
-### Credenciais padrao
-```
-Email: admin@osassist.com.br
-Senha: password
-```
-
----
-
-## Docker
-
-### Containers
-
-| Servico | Container | Porta |
-|---------|-----------|-------|
-| Nginx | os-nginx | 8080 |
-| PHP-FPM | os-php-fpm | 9000 |
-| PostgreSQL | os-postgres | 5432 |
-| Redis | os-redis | 6379 |
-| MailHog | os-mailhog | 8025 |
-
-### Comandos uteis
-```bash
-# Subir containers
-docker compose up -d
-
-# Parar containers
-docker compose down
-
-# Reconstruir container especifico
-docker compose build --no-cache php
-
-# Ver logs
-docker compose logs -f php
-
-# Executar artisan
-docker compose exec php php artisan <comando>
-
-# Rodar migrate:fresh com seed
-docker compose exec php php artisan migrate:fresh --seed --force
-```
-
----
-
-## API Endpoints
+## Endpoints da API (58 rotas)
 
 ### Autenticacao
 | Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| POST | /api/login | Login |
+| POST | /api/login | Login (rate limit: 10/min) |
 | POST | /api/logout | Logout |
-| GET | /api/me | Perfil do usuario |
+| GET | /api/me | Perfil do usuario logado |
 | PUT | /api/profile | Atualizar perfil |
 | PUT | /api/password | Alterar senha |
 
@@ -298,27 +219,181 @@ docker compose exec php php artisan migrate:fresh --seed --force
 
 ## Banco de Dados
 
-### Modelo Relacional
-- **roles** -> **users** (1:N)
-- **users** -> **clients** (1:N, criador)
-- **clients** -> **equipments** (1:N)
-- **users** -> **service_orders** (1:N, criador)
-- **users** -> **service_orders** (1:N, tecnico)
-- **clients** -> **service_orders** (1:N)
-- **equipments** -> **service_orders** (1:N)
-- **equipments** -> **equipment_files** (1:N)
-- **service_orders** -> **order_items** (1:N)
-- **service_orders** -> **order_histories** (1:N)
-- **stock_categories** -> **stock_items** (1:N)
-- **stock_items** -> **stock_movements** (1:N)
-- **financial_categories** -> **transactions** (1:N)
-- **service_orders** -> **transactions** (1:N)
-- **sale_categories** -> **sale_items** (1:N)
-- **sales** -> **sale_items** (1:N)
-- **clients** -> **sales** (1:N, opcional)
-- **users** -> **sales** (1:N, vendedor)
-- **users** -> **notifications** (1:N)
-- **users** -> **audits** (1:N)
+### Modelo Relacional (31 tabelas)
+
+```
+roles ──────────────> users
+                       |
+                       ├──> service_orders (tecnico)
+                       ├──> service_orders (criador)
+                       ├──> sales (vendedor)
+                       ├──> notifications
+                       ├──> audits
+                       └──> stock_movements
+
+clients ────────────> equipments
+                       |
+                       ├──> service_orders
+                       └──> sales (opcional)
+
+equipments ──────────> equipment_files
+                       └──> service_orders
+
+service_orders ──────> order_items
+                       ├──> order_histories
+                       ├──> transactions
+                       └──> stock_movements
+
+stock_categories ────> stock_items
+                       └──> stock_movements
+
+financial_categories > transactions
+
+sale_categories ─────> sale_items
+                       └──> sales
+```
+
+### Total de Migracoes: 31
+
+---
+
+## Instalacao
+
+### Pre-requisitos
+
+- Docker e Docker Compose v2+
+- Git
+- Node.js 18+
+
+### Passo 1: Clone o repositorio
+
+```bash
+git clone https://github.com/Dgabriel-dev/OS-Manager.git
+cd OS-Manager
+```
+
+### Passo 2: Inicie os containers
+
+```bash
+# Build e subir todos os containers
+docker compose build
+docker compose up -d
+
+# Aguardar PostgreSQL inicializar
+sleep 5
+
+# Instalar dependencias PHP
+docker compose exec php composer install
+
+# Gerar Application Key
+docker compose exec php php artisan key:generate
+
+# Rodar migrations + seeders
+docker compose exec php php artisan migrate --seed --force
+
+# Criar link de storage
+docker compose exec php php artisan storage:link
+```
+
+### Passo 3: Iniciar o frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Passo 4: Acesse o sistema
+
+| Servico | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8080/api |
+| MailHog | http://localhost:8025 |
+
+### Credenciais padrao
+
+```
+Email: admin@osassist.com.br
+Senha: password
+```
+
+---
+
+## Docker
+
+### Containers
+
+| Servico | Container | Porta | Imagem |
+|---------|-----------|-------|--------|
+| Nginx | os-nginx | 8080 | nginx:1.27-alpine |
+| PHP-FPM | os-php-fpm | 9000 | php:8.4-fpm-bookworm |
+| PostgreSQL | os-postgres | 5432 | postgres:17-alpine |
+| Redis | os-redis | 6379 | redis:7-alpine |
+| MailHog | os-mailhog | 8025/1025 | mailhog/mailhog:latest |
+
+### Comandos uteis
+
+```bash
+# Subir containers
+docker compose up -d
+
+# Parar containers
+docker compose down
+
+# Ver logs
+docker compose logs -f php
+
+# Executar artisan
+docker compose exec php php artisan <comando>
+
+# Rodar migrate:fresh com seed
+docker compose exec php php artisan migrate:fresh --seed --force
+
+# Rodar testes
+docker compose exec php php artisan test
+```
+
+---
+
+## Tecnologias
+
+### Backend
+
+| Tecnologia | Versao | Uso |
+|------------|--------|-----|
+| PHP | 8.4 | Linguagem principal |
+| Laravel | 13 | Framework |
+| PostgreSQL | 17 | Banco de dados |
+| Redis | 7 | Cache e sessoes |
+| Sanctum | 4 | Autenticacao API |
+| DomPDF | 3 | Geracao de PDFs |
+| Pest | 4 | Testes |
+
+### Frontend
+
+| Tecnologia | Versao | Uso |
+|------------|--------|-----|
+| React | 19 | UI Library |
+| TypeScript | 6 | Tipagem estatica |
+| Vite | 8 | Build tool |
+| Tailwind CSS | 4 | Estilizacao |
+| shadcn/ui | - | Componentes UI |
+| React Router | 7 | Rotas SPA |
+| React Hook Form | 7 | Formularios |
+| Zod | 3 | Validacao |
+| TanStack Query | 5 | State management |
+| Recharts | 3 | Graficos |
+| Axios | 1 | HTTP client |
+| Lucide | - | Icones |
+
+### Infraestrutura
+
+| Tecnologia | Versao | Uso |
+|------------|--------|-----|
+| Docker | 24 | Containerizacao |
+| Nginx | 1.27 | Web server |
+| PHP-FPM | 8.4 | Runtime PHP |
 
 ---
 
@@ -327,40 +402,22 @@ docker compose exec php php artisan migrate:fresh --seed --force
 ```
 OS-Manager/
   docker/
-    nginx/               # Configuracoes Nginx
-    php/                 # Dockerfile PHP-FPM
+    nginx/               # Configuracoes Nginx + snippets
+    php/                 # Dockerfile PHP-FPM + php.ini
     postgres/            # Script de inicializacao
   backend/               # Laravel 13 API
-    app/                 # Codigo da aplicacao
-    config/              # Configuracoes
-    database/            # Migrations, seeders
+    api/                 # Entry point para Vercel (serverless)
+    app/                 # Codigo da aplicacao (159 arquivos)
+    config/              # 11 configuracoes
+    database/            # 31 migrations, 8 seeders
+    resources/views/pdf/ # 5 templates Blade para PDFs
     routes/              # Definicao de rotas
   frontend/              # React + TypeScript
-    src/                 # Codigo fonte
+    src/                 # Codigo fonte (72 arquivos)
     dist/                # Build de producao
   docker-compose.yml     # Orquestracao Docker
-  .env                   # Variaveis de ambiente Docker
   README.md              # Esta documentacao
 ```
-
----
-
-## Tecnologias
-
-### Backend
-- PHP 8.4 | Laravel 13 | PostgreSQL 17 | Redis 7
-- Laravel Sanctum | Eloquent ORM | DomPDF
-- Repository Pattern | Service Layer
-
-### Frontend
-- React 18 | TypeScript | Vite
-- Tailwind CSS 4 | shadcn/ui style
-- React Router | React Hook Form | Zod
-- TanStack Query | Axios | Recharts
-- Lucide Icons | date-fns
-
-### Infraestrutura
-- Docker | Nginx | PHP-FPM | PostgreSQL | Redis
 
 ---
 
