@@ -34,4 +34,19 @@ if ($isVercel) {
     $app->useStoragePath('/tmp/storage');
 }
 
+if (isset($_GET['_debug'])) {
+    $req = Request::capture();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'script_name' => $_SERVER['SCRIPT_NAME'] ?? 'N/A',
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
+        'path_info' => $req->getPathInfo(),
+        'base_url' => $req->getBaseUrl(),
+        'base_path' => $req->getBasePath(),
+        'method' => $req->getMethod(),
+        'is_vercel' => $isVercel,
+    ]);
+    exit;
+}
+
 $app->handleRequest(Request::capture());
