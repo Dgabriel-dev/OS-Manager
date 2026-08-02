@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/public/app.php"
+      "dest": "/app.php"
     }
   ]
 }
