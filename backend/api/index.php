@@ -31,26 +31,28 @@ if ($isVercel) {
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 if (isset($_GET['_debug_uri'])) {
-    $request = Illuminate\Http\Request::capture();
+    $response = $kernel->handle($request = Illuminate\Http\Request::capture());
     
     $router = $app->make('router');
     $routes = $router->getRoutes();
     
-    $matched = null;
-    try {
-        $matched = $routes->match($request);
-    } catch (\Throwable $e) {
-        $matched = ['error' => get_class($e)];
+    $routeList = [];
+    foreach ($routes as $route) {
+        foreach ($route->methods() as $method) {
+            $routeList[] = $method . ' ' . $route->uri();
+        }
     }
     
     header('Content-Type: application/json');
     echo json_encode([
+        'status' => $response->getStatusCode(),
         'request_uri' => $request->getRequestUri(),
         'path' => $request->getPathInfo(),
         'method' => $request->getMethod(),
-        'route_count' => $routes->count(),
-        'matched' => is_object($matched) ? $matched->getActionName() : $matched,
+        'route_count' => count($routeList),
+        'api_routes' => array_values(array_filter($routeList, fn($r) => str_starts_with($r, 'POST api/') || str_starts_with($r, 'GET api/'))),
     ]);
+    $kernel->terminate($request, $response);
     exit;
 }
 
