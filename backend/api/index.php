@@ -4,7 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '0');
 
-header('Content-Type: application/json');
+putenv('CACHE_STORE=array');
+putenv('SESSION_DRIVER=array');
+putenv('QUEUE_CONNECTION=sync');
+putenv('LOG_CHANNEL=stderr');
+putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 
 $paths = [
     '/tmp/storage/framework/views',
@@ -20,30 +24,16 @@ foreach ($paths as $path) {
     }
 }
 
-$_ENV['CACHE_STORE'] = 'array';
-$_ENV['SESSION_DRIVER'] = 'array';
-$_ENV['QUEUE_CONNECTION'] = 'sync';
+require __DIR__ . '/../vendor/autoload.php';
 
-try {
-    require __DIR__ . '/../vendor/autoload.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
 
-    $response = $kernel->handle(
-        $request = Illuminate\Http\Request::capture()
-    );
+$response->send();
 
-    $response->send();
-
-    $kernel->terminate($request, $response);
-} catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => $e->getMessage(),
-        'file' => str_replace('/var/task/user/', 'backend/', $e->getFile()),
-        'line' => $e->getLine(),
-        'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 5),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-}
+$kernel->terminate($request, $response);
