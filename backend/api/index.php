@@ -30,6 +30,19 @@ if ($isVercel) {
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
+if (isset($_GET['_debug_uri'])) {
+    $request = Illuminate\Http\Request::capture();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'request_uri' => $request->getRequestUri(),
+        'path' => $request->getPathInfo(),
+        'method' => $request->getMethod(),
+        'is_vercel' => $isVercel,
+        'vercel_env' => getenv('VERCEL_ENV') ?: 'N/A',
+    ]);
+    exit;
+}
+
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
