@@ -5,6 +5,19 @@ ini_set('display_errors', '0');
 
 $isVercel = getenv('VERCEL') || getenv('VERCEL_ENV');
 
+if (isset($_GET['_debug_uri'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
+        'method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+        'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'N/A',
+        'is_vercel' => $isVercel,
+        'post' => $_POST,
+        'input' => file_get_contents('php://input'),
+    ]);
+    exit;
+}
+
 if ($isVercel) {
     putenv('LOG_CHANNEL=stderr');
     putenv('CACHE_STORE=array');
@@ -29,32 +42,6 @@ if ($isVercel) {
 }
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-if (isset($_GET['_debug_uri'])) {
-    $response = $kernel->handle($request = Illuminate\Http\Request::capture());
-    
-    $router = $app->make('router');
-    $routes = $router->getRoutes();
-    
-    $routeList = [];
-    foreach ($routes as $route) {
-        foreach ($route->methods() as $method) {
-            $routeList[] = $method . ' ' . $route->uri();
-        }
-    }
-    
-    header('Content-Type: application/json');
-    echo json_encode([
-        'status' => $response->getStatusCode(),
-        'request_uri' => $request->getRequestUri(),
-        'path' => $request->getPathInfo(),
-        'method' => $request->getMethod(),
-        'route_count' => count($routeList),
-        'api_routes' => array_values(array_filter($routeList, fn($r) => str_starts_with($r, 'POST api/') || str_starts_with($r, 'GET api/'))),
-    ]);
-    $kernel->terminate($request, $response);
-    exit;
-}
 
 $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
