@@ -32,13 +32,24 @@ $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 if (isset($_GET['_debug_uri'])) {
     $request = Illuminate\Http\Request::capture();
+    
+    $router = $app->make('router');
+    $routes = $router->getRoutes();
+    
+    $matched = null;
+    try {
+        $matched = $routes->match($request);
+    } catch (\Throwable $e) {
+        $matched = ['error' => get_class($e)];
+    }
+    
     header('Content-Type: application/json');
     echo json_encode([
         'request_uri' => $request->getRequestUri(),
         'path' => $request->getPathInfo(),
         'method' => $request->getMethod(),
-        'is_vercel' => $isVercel,
-        'vercel_env' => getenv('VERCEL_ENV') ?: 'N/A',
+        'route_count' => $routes->count(),
+        'matched' => is_object($matched) ? $matched->getActionName() : $matched,
     ]);
     exit;
 }
