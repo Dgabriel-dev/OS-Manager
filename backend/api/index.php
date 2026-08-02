@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 $paths = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -14,21 +17,25 @@ foreach ($paths as $path) {
     }
 }
 
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
-$_ENV['CACHE_STORE'] = 'array';
-$_ENV['SESSION_DRIVER'] = 'array';
-$_ENV['QUEUE_CONNECTION'] = 'sync';
+try {
+    require __DIR__ . '/../vendor/autoload.php';
 
-require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle(
+        $request = Illuminate\Http\Request::capture()
+    );
 
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
+    $response->send();
 
-$response->send();
-
-$kernel->terminate($request, $response);
+    $kernel->terminate($request, $response);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+    ]);
+}
