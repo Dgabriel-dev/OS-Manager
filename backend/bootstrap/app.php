@@ -2,7 +2,6 @@
 
 use App\Http\Middleware\AuditMiddleware;
 use App\Http\Middleware\EnsureUserIsActive;
-use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
