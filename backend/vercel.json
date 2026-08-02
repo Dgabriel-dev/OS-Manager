@@ -1,15 +1,14 @@
 {
   "version": 2,
-  "outputDirectory": "public",
   "functions": {
-    "public/app.php": {
+    "server.php": {
       "runtime": "vercel-php@0.8.0"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/app.php"
+      "dest": "/server.php"
     }
   ]
 }
