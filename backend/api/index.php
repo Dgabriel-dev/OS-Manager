@@ -42,6 +42,21 @@ if ($isVercel) {
     $app->useStoragePath('/tmp/storage');
 }
 
+if (isset($_GET['_debug_routes'])) {
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle($request = Illuminate\Http\Request::capture());
+    
+    $routes = [];
+    foreach (app('router')->getRoutes() as $route) {
+        $routes[] = $route->methods() . ' ' . $route->uri();
+    }
+    
+    header('Content-Type: application/json');
+    echo json_encode(array_slice($routes, 0, 10));
+    $kernel->terminate($request, $response);
+    exit;
+}
+
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 $response = $kernel->handle(
