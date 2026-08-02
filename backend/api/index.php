@@ -4,6 +4,19 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('log_errors', '0');
 
+if (isset($_GET['_debug'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
+        'script_name' => $_SERVER['SCRIPT_NAME'] ?? 'N/A',
+        'query_string' => $_SERVER['QUERY_STRING'] ?? 'N/A',
+        'http_host' => $_SERVER['HTTP_HOST'] ?? 'N/A',
+        'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+        'is_vercel' => getenv('VERCEL') ?: 'no',
+    ]);
+    exit;
+}
+
 $isVercel = getenv('VERCEL') || getenv('VERCEL_ENV');
 
 if ($isVercel) {
@@ -21,18 +34,6 @@ if ($isVercel) {
 }
 
 require __DIR__ . '/../vendor/autoload.php';
-
-if ($isVercel && isset($_GET['_debug'])) {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
-        'script_name' => $_SERVER['SCRIPT_NAME'] ?? 'N/A',
-        'query_string' => $_SERVER['QUERY_STRING'] ?? 'N/A',
-        'http_host' => $_SERVER['HTTP_HOST'] ?? 'N/A',
-        'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
-    ]);
-    exit;
-}
 
 $app = require __DIR__ . '/../bootstrap/app.php';
 
