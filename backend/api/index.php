@@ -45,12 +45,25 @@ if ($isVercel) {
 if (isset($_GET['_debug_routes'])) {
     try {
         $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-        $routes = array_map(fn($r) => $r->methods()[0] . ' ' . $r->uri(), app('router')->getRoutes()->getRoutes());
+        $response = $kernel->handle($request = Illuminate\Http\Request::capture());
+        
+        $routes = [];
+        foreach (app('router')->getRoutes()->getRoutes() as $route) {
+            foreach ($route->methods() as $method) {
+                $routes[] = $method . ' ' . $route->uri();
+            }
+        }
+        
         header('Content-Type: application/json');
-        echo json_encode(['ok' => true, 'count' => count($routes), 'first_5' => array_slice($routes, 0, 5)]);
+        echo json_encode([
+            'status' => $response->getStatusCode(),
+            'count' => count($routes),
+            'first_10' => array_slice($routes, 0, 10),
+        ]);
+        $kernel->terminate($request, $response);
     } catch (\Throwable $e) {
         header('Content-Type: application/json');
-        echo json_encode(['error' => get_class($e), 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        echo json_encode(['error' => get_class($e), 'message' => $e->getMessage()]);
     }
     exit;
 }
